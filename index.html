@@ -91,7 +91,7 @@
         </div>
         <div class="sidebar-footer">
           <p class="sidebar-footer-text">一緒に使うと Slack はもっと楽しくなります。</p>
-          <button class="invite-btn"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="6" cy="5" r="3"/><path d="M1 14c0-3 2.5-5 5-5s5 2 5 5"/><path d="M12 5v6M9 8h6"/></svg> チームのメンバーを招待する</button>
+          <button class="invite-btn" onclick="openInviteModal()"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="6" cy="5" r="3"/><path d="M1 14c0-3 2.5-5 5-5s5 2 5 5"/><path d="M12 5v6M9 8h6"/></svg> チームのメンバーを招待する</button>
         </div>
       </div>
     </aside>
@@ -144,9 +144,9 @@
           </div>
           <div class="channel-header-right">
             <span id="joinLeaveBtnContainer"></span>
-            <button class="header-btn" onclick="location.href='members.html'">
+            <button class="header-btn" onclick="openInviteModal()">
               <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="6" cy="5" r="3"/><path d="M1 14c0-3 2.5-5 5-5s5 2 5 5"/><path d="M12 5v6M9 8h6"/></svg>
-              チームのメンバーを招待する
+              メンバーを招待
             </button>
             <button class="header-icon-btn"><svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="6.5" cy="6" r="3"/><path d="M1 16c0-3 2.5-5 5.5-5s5.5 2 5.5 5"/><circle cx="13.5" cy="6" r="2"/><path d="M13.5 10c2 0 3.5 1.5 3.5 3.5"/></svg></button>
             <button class="header-icon-btn" onclick="location.href='search.html'"><svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="7.5" cy="7.5" r="5"/><path d="M11.5 11.5l4 4"/></svg></button>
@@ -274,6 +274,26 @@
     </aside>
   </div>
 
+  <!-- Invite Modal -->
+  <div class="invite-overlay" id="inviteOverlay" style="display:none;" onclick="if(event.target===this)closeInviteModal()">
+    <div class="invite-modal">
+      <div class="invite-modal-header">
+        <h3>メンバーを招待</h3>
+        <button class="invite-modal-close" onclick="closeInviteModal()">&#10005;</button>
+      </div>
+      <div class="invite-modal-body">
+        <p style="font-size:14px;color:#aaa;margin-bottom:16px;">メールアドレスを入力して招待を送信します。招待されたユーザーは自動でアカウントが作成されます。</p>
+        <div class="invite-error" id="inviteError" style="display:none;"></div>
+        <div class="invite-success" id="inviteSuccess" style="display:none;"></div>
+        <div style="display:flex;gap:8px;">
+          <input type="email" id="inviteEmail" class="invite-email-input" placeholder="name@example.com">
+          <button class="invite-send-btn" id="inviteSendBtn" onclick="handleInvite()">招待する</button>
+        </div>
+        <div id="invitedList" style="margin-top:16px;"></div>
+      </div>
+    </div>
+  </div>
+
   <!-- User avatar bottom-left overlay -->
   <img class="user-icon-bottom" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28'%3E%3Crect width='28' height='28' rx='6' fill='%23f0c040'/%3E%3Ctext x='14' y='20' text-anchor='middle' font-size='16'%3E%F0%9F%90%A4%3C/text%3E%3C/svg%3E" alt="">
 
@@ -312,6 +332,52 @@
       await signOut();
       window.location.href = 'auth.html';
     }
+
+    // Invite modal
+    function openInviteModal() {
+      document.getElementById('inviteOverlay').style.display = 'flex';
+      document.getElementById('inviteEmail').value = '';
+      document.getElementById('inviteError').style.display = 'none';
+      document.getElementById('inviteSuccess').style.display = 'none';
+      document.getElementById('inviteEmail').focus();
+    }
+    function closeInviteModal() {
+      document.getElementById('inviteOverlay').style.display = 'none';
+    }
+    async function handleInvite() {
+      const emailInput = document.getElementById('inviteEmail');
+      const email = emailInput.value.trim();
+      if (!email) return;
+      const errEl = document.getElementById('inviteError');
+      const succEl = document.getElementById('inviteSuccess');
+      const btn = document.getElementById('inviteSendBtn');
+      errEl.style.display = 'none';
+      succEl.style.display = 'none';
+      btn.disabled = true;
+      btn.textContent = '送信中...';
+
+      const result = await inviteUserByEmail(email);
+      btn.disabled = false;
+      btn.textContent = '招待する';
+
+      if (result.error) {
+        errEl.textContent = result.error;
+        errEl.style.display = 'block';
+        return;
+      }
+
+      succEl.textContent = email + ' を招待しました。仮パスワード: ' + result.tempPassword;
+      succEl.style.display = 'block';
+      emailInput.value = '';
+
+      // 招待リストに追加
+      const list = document.getElementById('invitedList');
+      const initial = email.charAt(0).toUpperCase();
+      list.innerHTML = '<div class="invited-item"><div class="invited-item-icon">' + initial + '</div><span>' + email + '</span></div>' + list.innerHTML;
+    }
+    document.getElementById('inviteEmail')?.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') handleInvite();
+    });
 
     // Mobile sidebar toggle
     function openMobileSidebar() {

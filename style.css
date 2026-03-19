@@ -477,6 +477,58 @@ textarea::placeholder { color: #777; }
   cursor: pointer;
 }
 
+/* ============ INVITE MODAL ============ */
+.invite-overlay {
+  position: fixed; inset: 0; z-index: 300;
+  background: rgba(0,0,0,0.6); display: flex;
+  align-items: center; justify-content: center;
+}
+.invite-modal {
+  background: #1A1D21; border: 1px solid #444; border-radius: 12px;
+  width: 480px; max-width: 90vw; max-height: 80vh; overflow-y: auto;
+}
+.invite-modal-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 20px; border-bottom: 1px solid #333;
+}
+.invite-modal-header h3 { font-size: 17px; font-weight: 700; color: #e8e8e8; }
+.invite-modal-close {
+  background: none; border: none; color: #999; font-size: 18px;
+  cursor: pointer; padding: 4px; border-radius: 4px;
+}
+.invite-modal-close:hover { background: #333; color: #fff; }
+.invite-modal-body { padding: 20px; }
+.invite-email-input {
+  flex: 1; padding: 10px 14px; border: 1px solid #444; border-radius: 8px;
+  background: #232529; color: #e0e0e0; font-size: 15px;
+  font-family: var(--font); outline: none;
+}
+.invite-email-input:focus { border-color: #1D9BD1; }
+.invite-send-btn {
+  padding: 10px 20px; background: #007a5a; color: #fff; border: none;
+  border-radius: 8px; font-size: 14px; font-weight: 700; cursor: pointer;
+  font-family: var(--font); white-space: nowrap;
+}
+.invite-send-btn:hover { background: #006248; }
+.invite-send-btn:disabled { background: #444; color: #888; cursor: not-allowed; }
+.invite-error {
+  padding: 10px 14px; background: #3a2020; border: 1px solid #e05050;
+  border-radius: 8px; color: #ff8888; font-size: 13px; margin-bottom: 12px;
+}
+.invite-success {
+  padding: 10px 14px; background: #1a3a2a; border: 1px solid #2bac76;
+  border-radius: 8px; color: #6fd8a0; font-size: 13px; margin-bottom: 12px;
+}
+.invited-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 0; border-bottom: 1px solid #2a2d32; font-size: 14px; color: #ccc;
+}
+.invited-item-icon {
+  width: 32px; height: 32px; border-radius: 6px; background: #444;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; font-weight: 700; color: #fff;
+}
+
 /* ============ MOBILE BOTTOM TAB BAR ============ */
 .mobile-tab-bar {
   display: none;

@@ -175,6 +175,18 @@ async function signOut() {
   await sb.auth.signOut()
 }
 
+async function inviteUserByEmail(email) {
+  const sb = getSupabase()
+  // 仮パスワードで新規ユーザーを作成（招待メールが送られる）
+  const tempPassword = 'Welcome!' + Math.random().toString(36).slice(2, 10)
+  const { data, error } = await sb.auth.signUp({
+    email: email,
+    password: tempPassword,
+  })
+  if (error) return { error: error.message }
+  return { user: data.user, tempPassword: tempPassword }
+}
+
 async function getCurrentUser() {
   const sb = getSupabase()
   const { data: { user } } = await sb.auth.getUser()
