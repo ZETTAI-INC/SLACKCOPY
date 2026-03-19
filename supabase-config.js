@@ -71,27 +71,21 @@ async function getWorkspace(workspaceId) {
 
 async function inviteToWorkspace(workspaceId, email, inviterName) {
   const sb = getSupabase()
-  // 招待前にワークスペース名とチャンネル一覧を取得（signUp後にセッションが変わる可能性があるため）
+  // 招待前にワークスペース名を取得
   const { data: wsData } = await sb.from('workspaces').select('name').eq('id', workspaceId).single()
   const wsName = wsData ? wsData.name : 'ワークスペース'
-  const { data: channels } = await sb.from('channels').select('id').eq('workspace_id', workspaceId)
 
   const tempPassword = 'Welcome!' + Math.random().toString(36).slice(2, 10)
   const { data, error } = await sb.auth.signUp({ email: email, password: tempPassword })
   if (error) return { error: error.message }
   if (data.user) {
-    const userId = data.user.id
-    // workspace_membersに追加
-    await sb.from('workspace_members').insert({ workspace_id: workspaceId, user_id: userId, role: 'member' })
-    // 全チャンネルに自動参加
-    if (channels) {
-      for (const ch of channels) {
-        await sb.from('channel_members').upsert({ channel_id: ch.id, user_id: userId }, { onConflict: 'channel_id,user_id' })
-      }
-    }
-    // SECURITY DEFINER関数で通知作成（セッション変更の影響を受けない）
-    const msg = (inviterName || 'メンバー') + ' さんがあなたを「' + wsName + '」に招待しました。ようこそ！'
-    await sb.rpc('create_notification', { target_user_id: userId, notif_type: 'invite', notif_message: msg })
+    // DB関数で一括処理（SECURITY DEFINER: セッション変更の影響を受けない）
+    await sb.rpc('add_invite', {
+      ws_id: workspaceId,
+      invited_user_id: data.user.id,
+      inviter_name: inviterName || 'メンバー',
+      ws_name: wsName
+    })
   }
   return { user: data.user, tempPassword: tempPassword }
 }
