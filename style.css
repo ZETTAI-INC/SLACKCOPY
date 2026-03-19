@@ -269,6 +269,10 @@ html, body {
   font-family: var(--font); white-space: nowrap;
 }
 .header-btn:hover { background: var(--hover-bg); }
+.channel-join-btn { background: #007a5a !important; color: #fff !important; border-color: #007a5a !important; }
+.channel-join-btn:hover { background: #006248 !important; }
+.channel-leave-btn { color: #e05050 !important; border-color: #e05050 !important; }
+.channel-leave-btn:hover { background: rgba(224,80,80,0.1) !important; }
 .header-icon-btn {
   background: none; border: none; padding: 6px; border-radius: 8px;
   cursor: pointer; color: var(--text-secondary); display: flex; align-items: center;

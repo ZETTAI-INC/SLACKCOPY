@@ -23,6 +23,42 @@ async function fetchChannels() {
   return data || []
 }
 
+// ============ チャンネルメンバー ============
+async function joinChannel(channelId) {
+  const sb = getSupabase()
+  const user = await getCurrentUser()
+  if (!user) return false
+  const { error } = await sb.from('channel_members').upsert({
+    channel_id: channelId,
+    user_id: user.id,
+    joined_at: new Date().toISOString(),
+  }, { onConflict: 'channel_id,user_id' })
+  if (error) { console.error('joinChannel error:', error); return false }
+  return true
+}
+
+async function leaveChannel(channelId) {
+  const sb = getSupabase()
+  const user = await getCurrentUser()
+  if (!user) return false
+  const { error } = await sb.from('channel_members').delete()
+    .eq('channel_id', channelId)
+    .eq('user_id', user.id)
+  if (error) { console.error('leaveChannel error:', error); return false }
+  return true
+}
+
+async function fetchMyChannelIds() {
+  const sb = getSupabase()
+  const user = await getCurrentUser()
+  if (!user) return []
+  const { data, error } = await sb.from('channel_members')
+    .select('channel_id')
+    .eq('user_id', user.id)
+  if (error) { console.error('fetchMyChannelIds error:', error); return [] }
+  return (data || []).map(row => row.channel_id)
+}
+
 // ============ メッセージ ============
 async function fetchMessages(channelId) {
   const sb = getSupabase()

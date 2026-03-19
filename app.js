@@ -8,6 +8,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   let currentChannelId = null;
   let currentChannelName = '';
   let channels = [];
+  let joinedChannelIds = [];
   let realtimeSubscription = null;
   let currentUser = null;
 
@@ -24,17 +25,55 @@ document.addEventListener('DOMContentLoaded', async () => {
   // ============ Supabaseからチャンネル取得 ============
   async function loadChannels() {
     channels = await fetchChannels();
-    console.log('Loaded channels:', channels);
+    joinedChannelIds = await fetchMyChannelIds();
+    console.log('Loaded channels:', channels, 'Joined:', joinedChannelIds);
 
-    // 最初のチャンネルをアクティブに
-    if (channels.length > 0) {
-      currentChannelId = channels[0].id;
-      currentChannelName = channels[0].name;
-      console.log('Active channel:', currentChannelId, currentChannelName);
+    // 参加済みの最初のチャンネルをアクティブに
+    const joinedChannel = channels.find(c => joinedChannelIds.includes(c.id));
+    if (joinedChannel) {
+      currentChannelId = joinedChannel.id;
+      currentChannelName = joinedChannel.name;
       await loadMessages();
       setupRealtime();
+    } else if (channels.length > 0) {
+      currentChannelId = channels[0].id;
+      currentChannelName = channels[0].name;
+    }
+    updateJoinLeaveBtn();
+  }
+
+  // ============ チャンネル参加/退出 ============
+  function updateJoinLeaveBtn() {
+    const container = document.getElementById('joinLeaveBtnContainer');
+    if (!container || !currentChannelId) return;
+    const isJoined = joinedChannelIds.includes(currentChannelId);
+    if (isJoined) {
+      container.innerHTML = '<button class="header-btn channel-leave-btn" onclick="handleLeaveChannel()">チャンネルから退出</button>';
     } else {
-      console.log('No channels found!');
+      container.innerHTML = '<button class="header-btn channel-join-btn" onclick="handleJoinChannel()">チャンネルに参加</button>';
+    }
+  }
+
+  window.handleJoinChannel = async function() {
+    if (!currentChannelId) return;
+    const success = await joinChannel(currentChannelId);
+    if (success) {
+      joinedChannelIds.push(currentChannelId);
+      updateJoinLeaveBtn();
+      await loadMessages();
+    }
+  }
+
+  window.handleLeaveChannel = async function() {
+    if (!currentChannelId) return;
+    if (!confirm('このチャンネルから退出しますか？')) return;
+    const success = await leaveChannel(currentChannelId);
+    if (success) {
+      joinedChannelIds = joinedChannelIds.filter(id => id !== currentChannelId);
+      updateJoinLeaveBtn();
+      if (messagesContainer) {
+        messagesContainer.innerHTML = '<div style="text-align:center;padding:40px;color:#888;font-size:14px;">このチャンネルに参加するとメッセージを閲覧できます。</div>';
+      }
     }
   }
 
@@ -250,6 +289,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
       await loadMessages();
       setupRealtime();
+      updateJoinLeaveBtn();
     });
   });
 
