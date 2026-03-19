@@ -68,13 +68,6 @@
     (async () => {
       const user = await getCurrentUser();
       if (!user) { window.location.href = 'auth.html'; return; }
-      // 既にワークスペースがあればindex.htmlへ
-      const wsList = await fetchMyWorkspaces();
-      if (wsList.length > 0) {
-        localStorage.setItem('currentWorkspaceId', wsList[0].id);
-        window.location.href = 'index.html';
-        return;
-      }
     })();
 
     document.getElementById('createForm').addEventListener('submit', async () => {
