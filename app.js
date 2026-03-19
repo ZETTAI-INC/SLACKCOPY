@@ -36,11 +36,23 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (joinedChannel) {
       currentChannelId = joinedChannel.id;
       currentChannelName = joinedChannel.name;
-      await loadMessages();
-      setupRealtime();
     } else if (channels.length > 0) {
       currentChannelId = channels[0].id;
       currentChannelName = channels[0].name;
+    }
+
+    // ヘッダーにチャンネル名を反映
+    if (currentChannelName) {
+      const titleEl = document.querySelector('.channel-title');
+      if (titleEl) titleEl.textContent = '# ' + currentChannelName;
+      const mobileTitle = document.getElementById('mobileChannelTitle');
+      if (mobileTitle) mobileTitle.textContent = '# ' + currentChannelName;
+      if (messageInput) messageInput.placeholder = '#' + currentChannelName + ' へのメッセージ';
+    }
+
+    if (currentChannelId) {
+      await loadMessages();
+      setupRealtime();
     }
     updateJoinLeaveBtn();
   }
@@ -357,15 +369,22 @@ document.addEventListener('DOMContentLoaded', async () => {
   // ============ 初期化 ============
   // 未参加チャンネルがあれば自動参加
   async function autoJoinChannels() {
-    const allChannels = await fetchChannels();
-    const myIds = await fetchMyChannelIds();
-    for (const ch of allChannels) {
-      if (!myIds.includes(ch.id)) {
-        await joinChannel(ch.id);
+    try {
+      const allChannels = await fetchChannels();
+      const myIds = await fetchMyChannelIds();
+      for (const ch of allChannels) {
+        if (!myIds.includes(ch.id)) {
+          await joinChannel(ch.id);
+        }
       }
+    } catch (e) {
+      console.error('autoJoinChannels error:', e);
     }
   }
-  await autoJoinChannels();
+
+  if (currentUser) {
+    await autoJoinChannels();
+  }
 
   updateUserUI();
   updateSendBtn();
