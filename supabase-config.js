@@ -17,12 +17,24 @@ async function fetchMyWorkspaces() {
   const sb = getSupabase()
   const user = await getCurrentUser()
   if (!user) return []
-  const { data, error } = await sb
+  // まずメンバーシップを取得
+  const { data: members, error: mErr } = await sb
     .from('workspace_members')
-    .select('workspace_id, role, workspaces(*)')
+    .select('workspace_id, role')
     .eq('user_id', user.id)
-  if (error) { console.error('fetchMyWorkspaces error:', error); return [] }
-  return (data || []).map(d => ({ ...d.workspaces, role: d.role }))
+  if (mErr) { console.error('fetchMyWorkspaces members error:', mErr); return [] }
+  if (!members || members.length === 0) return []
+  // ワークスペース情報を取得
+  const wsIds = members.map(m => m.workspace_id)
+  const { data: workspaces, error: wErr } = await sb
+    .from('workspaces')
+    .select('*')
+    .in('id', wsIds)
+  if (wErr) { console.error('fetchMyWorkspaces workspaces error:', wErr); return [] }
+  return (workspaces || []).map(ws => {
+    const member = members.find(m => m.workspace_id === ws.id)
+    return { ...ws, role: member ? member.role : 'member' }
+  })
 }
 
 async function createWorkspace(name) {
@@ -30,22 +42,24 @@ async function createWorkspace(name) {
   const user = await getCurrentUser()
   if (!user) return null
   const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') + '-' + Date.now().toString(36)
-  const wsId = crypto.randomUUID()
+  const wsId = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) { var r = Math.random() * 16 | 0; return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16); })
   // まずワークスペース作成（select()なし）
-  const { error } = await sb.from('workspaces').insert({
+  const { error: wsErr } = await sb.from('workspaces').insert({
     id: wsId, name: name, slug: slug, owner_id: user.id
   })
-  if (error) { console.error('createWorkspace error:', error); return null }
+  if (wsErr) { console.error('createWorkspace insert error:', wsErr); return null }
   // オーナーとして参加（これでSELECTポリシーが通るようになる）
-  await sb.from('workspace_members').insert({ workspace_id: wsId, user_id: user.id, role: 'owner' })
+  const { error: memErr } = await sb.from('workspace_members').insert({ workspace_id: wsId, user_id: user.id, role: 'owner' })
+  if (memErr) { console.error('createWorkspace member error:', memErr); return null }
   // デフォルトチャンネル作成
-  await sb.from('channels').insert([
+  const { error: chErr } = await sb.from('channels').insert([
     { name: 'general', description: '全体の会話用', workspace_id: wsId },
     { name: 'random', description: '雑談チャンネル', workspace_id: wsId },
   ])
+  if (chErr) console.error('createWorkspace channels error:', chErr)
   // メンバー追加後にワークスペースを取得
   const { data } = await sb.from('workspaces').select('*').eq('id', wsId).single()
-  return data
+  return data || { id: wsId, name: name, slug: slug }
 }
 
 async function getWorkspace(workspaceId) {
