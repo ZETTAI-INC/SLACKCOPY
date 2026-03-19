@@ -30,19 +30,22 @@ async function createWorkspace(name) {
   const user = await getCurrentUser()
   if (!user) return null
   const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') + '-' + Date.now().toString(36)
-  const { data, error } = await sb.from('workspaces').insert({
-    name: name, slug: slug, owner_id: user.id
-  }).select()
+  const wsId = crypto.randomUUID()
+  // まずワークスペース作成（select()なし）
+  const { error } = await sb.from('workspaces').insert({
+    id: wsId, name: name, slug: slug, owner_id: user.id
+  })
   if (error) { console.error('createWorkspace error:', error); return null }
-  const ws = data[0]
-  // オーナーとして参加
-  await sb.from('workspace_members').insert({ workspace_id: ws.id, user_id: user.id, role: 'owner' })
+  // オーナーとして参加（これでSELECTポリシーが通るようになる）
+  await sb.from('workspace_members').insert({ workspace_id: wsId, user_id: user.id, role: 'owner' })
   // デフォルトチャンネル作成
   await sb.from('channels').insert([
-    { name: 'general', description: '全体の会話用', workspace_id: ws.id },
-    { name: 'random', description: '雑談チャンネル', workspace_id: ws.id },
+    { name: 'general', description: '全体の会話用', workspace_id: wsId },
+    { name: 'random', description: '雑談チャンネル', workspace_id: wsId },
   ])
-  return ws
+  // メンバー追加後にワークスペースを取得
+  const { data } = await sb.from('workspaces').select('*').eq('id', wsId).single()
+  return data
 }
 
 async function getWorkspace(workspaceId) {
