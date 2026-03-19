@@ -447,4 +447,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   updateSendBtn();
   await loadChannels();
   await loadNotifications();
+
+  // 初期化完了後に画面を表示
+  document.body.style.visibility = 'visible';
 });
