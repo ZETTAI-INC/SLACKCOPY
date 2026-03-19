@@ -28,6 +28,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     joinedChannelIds = await fetchMyChannelIds();
     console.log('Loaded channels:', channels, 'Joined:', joinedChannelIds);
 
+    // サイドバーのチャンネル一覧をDBから動的に生成
+    renderSidebarChannels();
+
     // 参加済みの最初のチャンネルをアクティブに
     const joinedChannel = channels.find(c => joinedChannelIds.includes(c.id));
     if (joinedChannel) {
@@ -42,6 +45,35 @@ document.addEventListener('DOMContentLoaded', async () => {
     updateJoinLeaveBtn();
   }
 
+  function renderSidebarChannels() {
+    const section = document.getElementById('channelListSection');
+    if (!section) return;
+    section.innerHTML = '';
+    channels.forEach((ch, i) => {
+      const btn = document.createElement('button');
+      btn.className = 'sidebar-item channel-item';
+      if (i === 0) btn.classList.add('active');
+      btn.dataset.channel = ch.name;
+      btn.innerHTML = '<span class="channel-hash">#</span><span>' + ch.name + '</span>';
+      btn.addEventListener('click', async () => {
+        document.querySelector('.channel-item.active')?.classList.remove('active');
+        btn.classList.add('active');
+        currentChannelId = ch.id;
+        currentChannelName = ch.name;
+        const titleEl = document.querySelector('.channel-title');
+        if (titleEl) titleEl.textContent = '# ' + ch.name;
+        const mobileTitle = document.getElementById('mobileChannelTitle');
+        if (mobileTitle) mobileTitle.textContent = '# ' + ch.name;
+        if (messageInput) messageInput.placeholder = '#' + ch.name + ' へのメッセージ';
+        await loadMessages();
+        setupRealtime();
+        updateJoinLeaveBtn();
+        if (typeof closeMobileSidebar === 'function') closeMobileSidebar();
+      });
+      section.appendChild(btn);
+    });
+  }
+
   // ============ チャンネル作成 ============
   const addChannelBtn = document.getElementById('addChannelBtn');
   if (addChannelBtn) {
@@ -54,11 +86,14 @@ document.addEventListener('DOMContentLoaded', async () => {
       await joinChannel(ch.id);
       joinedChannelIds.push(ch.id);
       channels.push(ch);
-      // サイドバーにチャンネルを追加
-      addChannelToSidebar(ch);
+      renderSidebarChannels();
       // 新チャンネルに切り替え
       currentChannelId = ch.id;
       currentChannelName = ch.name;
+      // 新チャンネルをactiveに
+      document.querySelectorAll('.channel-item').forEach(b => {
+        b.classList.toggle('active', b.dataset.channel === ch.name);
+      });
       const titleEl = document.querySelector('.channel-title');
       if (titleEl) titleEl.textContent = '# ' + ch.name;
       const mobileTitle = document.getElementById('mobileChannelTitle');
@@ -68,34 +103,6 @@ document.addEventListener('DOMContentLoaded', async () => {
       setupRealtime();
       updateJoinLeaveBtn();
     });
-  }
-
-  function addChannelToSidebar(ch) {
-    const section = document.querySelector('.channel-item')?.closest('.sidebar-section');
-    if (!section) return;
-    const btn = document.createElement('button');
-    btn.className = 'sidebar-item channel-item';
-    btn.dataset.channel = ch.name;
-    btn.innerHTML = '<span class="channel-hash">#</span><span>' + ch.name + '</span>';
-    btn.addEventListener('click', async () => {
-      document.querySelector('.channel-item.active')?.classList.remove('active');
-      btn.classList.add('active');
-      currentChannelId = ch.id;
-      currentChannelName = ch.name;
-      const titleEl = document.querySelector('.channel-title');
-      if (titleEl) titleEl.textContent = '# ' + ch.name;
-      const mobileTitle = document.getElementById('mobileChannelTitle');
-      if (mobileTitle) mobileTitle.textContent = '# ' + ch.name;
-      if (messageInput) messageInput.placeholder = '#' + ch.name + ' へのメッセージ';
-      await loadMessages();
-      setupRealtime();
-      updateJoinLeaveBtn();
-      if (typeof closeMobileSidebar === 'function') closeMobileSidebar();
-    });
-    // activeを移す
-    document.querySelector('.channel-item.active')?.classList.remove('active');
-    btn.classList.add('active');
-    section.appendChild(btn);
   }
 
   // ============ チャンネル参加/退出 ============
@@ -317,45 +324,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     closeThread.addEventListener('click', () => {
       if (threadPanel) threadPanel.style.display = 'none';
     });
-  }
-
-  // ============ チャンネル切り替え ============
-  document.querySelectorAll('.channel-item').forEach((btn, index) => {
-    btn.addEventListener('click', async () => {
-      document.querySelector('.channel-item.active')?.classList.remove('active');
-      btn.classList.add('active');
-
-      // data-channelからチャンネル名取得
-      const chName = btn.dataset.channel;
-
-      // Supabaseのチャンネルと照合
-      const matched = channels.find(c => c.name === chName || c.name === mapChannelName(chName));
-      if (matched) {
-        currentChannelId = matched.id;
-        currentChannelName = matched.name;
-      }
-
-      // ヘッダー更新
-      const titleEl = document.querySelector('.channel-title');
-      if (titleEl) titleEl.textContent = '# ' + (currentChannelName || chName);
-
-      if (messageInput) {
-        messageInput.placeholder = '#' + (currentChannelName || chName) + ' へのメッセージ';
-      }
-
-      await loadMessages();
-      setupRealtime();
-      updateJoinLeaveBtn();
-    });
-  });
-
-  function mapChannelName(name) {
-    const map = {
-      'all-kotaro': 'general',
-      'social': 'random',
-      'new-channel': 'general',
-    };
-    return map[name] || name;
   }
 
   // ============ セクション折りたたみ ============
