@@ -147,6 +147,7 @@
         <input type="email" class="email-input" id="loginEmail" placeholder="名前@work-email.com" required>
         <input type="password" class="password-input" id="loginPassword" placeholder="パスワード" required minlength="6">
         <button type="submit" class="submit-btn" id="loginSubmit">サインイン</button>
+        <button type="button" class="submit-btn" id="demoLoginBtn" style="margin-top:10px;background:#611f69;" onclick="demoLogin()">デモアカウントでログイン</button>
       </form>
 
       <!-- Signup form -->
@@ -253,6 +254,23 @@
       }
       btn.disabled = false;
     });
+
+    // デモアカウントでログイン
+    async function demoLogin() {
+      const btn = document.getElementById('demoLoginBtn');
+      btn.disabled = true;
+      btn.textContent = 'ログイン中...';
+      authError.classList.remove('show');
+      try {
+        const result = await signInWithEmail('testuser@slackcopy.com', 'test1234');
+        if (result.error) { showError(result.error); btn.disabled = false; btn.textContent = 'デモアカウントでログイン'; return; }
+        window.location.href = 'index.html';
+      } catch (e) {
+        showError('エラーが発生しました: ' + e.message);
+        btn.disabled = false;
+        btn.textContent = 'デモアカウントでログイン';
+      }
+    }
 
     // 既にログイン済みならリダイレクト
     (async () => {
