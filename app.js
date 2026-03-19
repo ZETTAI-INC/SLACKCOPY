@@ -314,6 +314,22 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   });
 
+  // ============ ユーザー情報をUIに反映 ============
+  function updateUserUI() {
+    if (!currentUser) return;
+    const displayName = currentUser.email ? currentUser.email.split('@')[0] : 'ユーザー';
+    const initial = displayName.charAt(0).toUpperCase();
+
+    const sidebarName = document.getElementById('sidebarUserName');
+    if (sidebarName) sidebarName.textContent = displayName;
+
+    const topAvatar = document.getElementById('topBarAvatar');
+    if (topAvatar) topAvatar.textContent = initial;
+
+    const iconUser = document.querySelector('.icon-sidebar-user');
+    if (iconUser) iconUser.textContent = initial;
+  }
+
   // ============ 初期化 ============
   // 未参加チャンネルがあれば自動参加
   async function autoJoinChannels() {
@@ -327,6 +343,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
   await autoJoinChannels();
 
+  updateUserUI();
   updateSendBtn();
   await loadChannels();
 });
