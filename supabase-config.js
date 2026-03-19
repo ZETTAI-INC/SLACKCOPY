@@ -71,21 +71,35 @@ async function getWorkspace(workspaceId) {
 
 async function inviteToWorkspace(workspaceId, email, inviterName) {
   const sb = getSupabase()
-  // 招待前にワークスペース名を取得
+  // 招待前に情報を取得
   const { data: wsData } = await sb.from('workspaces').select('name').eq('id', workspaceId).single()
   const wsName = wsData ? wsData.name : 'ワークスペース'
+  // 招待者のセッションを保存
+  const { data: sessionData } = await sb.auth.getSession()
+  const savedSession = sessionData?.session
 
   const tempPassword = 'Welcome!' + Math.random().toString(36).slice(2, 10)
   const { data, error } = await sb.auth.signUp({ email: email, password: tempPassword })
   if (error) return { error: error.message }
+
+  // signUpでセッションが変わった可能性があるので、元のセッションに戻す
+  if (savedSession) {
+    await sb.auth.setSession({
+      access_token: savedSession.access_token,
+      refresh_token: savedSession.refresh_token,
+    })
+  }
+
   if (data.user) {
-    // DB関数で一括処理（SECURITY DEFINER: セッション変更の影響を受けない）
-    await sb.rpc('add_invite', {
+    // セッション復帰後にDB関数で一括処理
+    const { error: rpcErr } = await sb.rpc('invite_user_to_workspace', {
+      target_email: email,
+      temp_pass: tempPassword,
       ws_id: workspaceId,
-      invited_user_id: data.user.id,
-      inviter_name: inviterName || 'メンバー',
+      inviter: inviterName || 'メンバー',
       ws_name: wsName
     })
+    if (rpcErr) console.error('invite rpc error:', rpcErr)
   }
   return { user: data.user, tempPassword: tempPassword }
 }
