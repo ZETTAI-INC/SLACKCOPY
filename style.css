@@ -610,13 +610,13 @@ textarea::placeholder { color: #777; }
 @media (max-width: 768px) {
   /* Hide desktop elements */
   .icon-sidebar { display: none !important; }
-  .channel-sidebar {
+  .channel-sidebar, .dm-sidebar {
     position: fixed; left: 0; top: 0; bottom: 0;
     width: 85vw; max-width: 320px; z-index: 210;
     transform: translateX(-100%);
     transition: transform 0.25s ease;
   }
-  .channel-sidebar.mobile-open {
+  .channel-sidebar.mobile-open, .dm-sidebar.mobile-open {
     transform: translateX(0);
   }
   .top-bar { display: none !important; }

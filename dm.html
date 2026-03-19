@@ -300,10 +300,14 @@
   <!-- Insert only icon sidebar (not channel sidebar) -->
   <script src="sidebar-template.js"></script>
   <script>
-    // Only insert icon sidebar, not channel sidebar
     var app = document.querySelector('.app');
     var dmSidebar = app.querySelector('.dm-sidebar');
     dmSidebar.insertAdjacentHTML('beforebegin', getIconSidebar('dm'));
+    dmSidebar.insertAdjacentHTML('beforebegin', getMobileSidebarOverlay());
+    var mw = app.querySelector('.main-wrapper');
+    if (mw) mw.insertAdjacentHTML('afterbegin', getMobileHeader('ダイレクトメッセージ'));
+    document.body.insertAdjacentHTML('beforeend', getMobileTabBar('dm'));
+    injectMorePopup();
   </script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script src="supabase-config.js"></script>

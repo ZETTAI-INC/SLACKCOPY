@@ -141,10 +141,13 @@
 
   <script src="sidebar-template.js"></script>
   <script>
-    // Insert only icon sidebar
     var app = document.querySelector('.app');
     var wrapper = app.querySelector('.main-wrapper');
     wrapper.insertAdjacentHTML('beforebegin', getIconSidebar('activity'));
+    wrapper.insertAdjacentHTML('beforebegin', getMobileSidebarOverlay());
+    wrapper.insertAdjacentHTML('afterbegin', getMobileHeader('アクティビティ'));
+    document.body.insertAdjacentHTML('beforeend', getMobileTabBar('activity'));
+    injectMorePopup();
 
     // Toggle
     document.getElementById('activityToggle').addEventListener('click', function() {

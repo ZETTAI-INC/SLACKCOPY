@@ -33,12 +33,73 @@ function getChannelSidebar(activeChannel) {
   +'</div></aside>';
 }
 
-function insertSidebar(activePage, activeChannel) {
+// ============ Mobile UI ============
+function getMobileHeader(title) {
+  return '<div class="mobile-header">'
+    +'<button class="mobile-header-back" onclick="openMobileSidebar()">'
+    +'<svg width="22" height="22" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3h14M3 8h14M3 13h14"/></svg>'
+    +'</button>'
+    +'<span class="mobile-header-title">'+title+'</span>'
+    +'<div class="mobile-header-actions">'
+    +'<button onclick="location.href=\'search.html\'"><svg width="20" height="20" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="7.5" cy="7.5" r="5"/><path d="M11.5 11.5l4 4"/></svg></button>'
+    +'</div></div>';
+}
+
+function getMobileTabBar(activePage) {
+  var tabs = [
+    { href: 'index.html', id: 'home', label: 'ホーム', icon: '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 8l7-5 7 5v8a1 1 0 01-1 1h-3v-4H7v4H4a1 1 0 01-1-1V8z"/></svg>' },
+    { href: 'dm.html', id: 'dm', label: 'DM', icon: '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 3h12a1 1 0 011 1v9a1 1 0 01-1 1H7l-4 3V4a1 1 0 011-1z"/></svg>' },
+    { href: 'activity.html', id: 'activity', label: 'アクティビティ', icon: '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 7A4 4 0 006 7v4l-2 2h12l-2-2V7z"/><path d="M8.5 15a1.5 1.5 0 003 0"/></svg>' },
+    { href: 'search.html', id: 'search', label: '検索', icon: '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8.5" cy="8.5" r="5.5"/><path d="M13 13l4.5 4.5"/></svg>' },
+    { href: '#', id: 'you', label: 'You', icon: '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="10" cy="7" r="4"/><path d="M3 18c0-3.5 3-6 7-6s7 2.5 7 6"/></svg>' },
+  ];
+  var html = '<div class="mobile-tab-bar"><nav>';
+  tabs.forEach(function(t) {
+    var active = t.id === activePage ? ' active' : '';
+    if (t.id === 'you') {
+      html += '<button class="mobile-tab-item'+active+'" onclick="if(confirm(\'ログアウトしますか？\')){signOut().then(function(){location.href=\'auth.html\';});}">'+t.icon+'<span>'+t.label+'</span></button>';
+    } else {
+      html += '<a href="'+t.href+'" class="mobile-tab-item'+active+'">'+t.icon+'<span>'+t.label+'</span></a>';
+    }
+  });
+  html += '</nav></div>';
+  return html;
+}
+
+function getMobileSidebarOverlay() {
+  return '<div class="mobile-sidebar-overlay" id="mobileSidebarOverlay" onclick="closeMobileSidebar()"></div>';
+}
+
+function openMobileSidebar() {
+  var sidebar = document.querySelector('.channel-sidebar') || document.querySelector('.dm-sidebar');
+  if (sidebar) sidebar.classList.add('mobile-open');
+  var overlay = document.getElementById('mobileSidebarOverlay');
+  if (overlay) overlay.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeMobileSidebar() {
+  var sidebar = document.querySelector('.channel-sidebar') || document.querySelector('.dm-sidebar');
+  if (sidebar) sidebar.classList.remove('mobile-open');
+  var overlay = document.getElementById('mobileSidebarOverlay');
+  if (overlay) overlay.classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function insertSidebar(activePage, activeChannel, mobileTitle) {
   var app = document.querySelector('.app');
   if (!app) return;
   var target = app.querySelector('.main-wrapper') || app.querySelector('.main-content') || app.querySelector('main');
   if (!target) return;
+  // デスクトップサイドバー
   target.insertAdjacentHTML('beforebegin', getIconSidebar(activePage) + getChannelSidebar(activeChannel || ''));
+  // モバイルオーバーレイ
+  target.insertAdjacentHTML('beforebegin', getMobileSidebarOverlay());
+  // モバイルヘッダーをmain-wrapper/main-contentの先頭に挿入
+  var title = mobileTitle || document.querySelector('.channel-title')?.textContent || document.title;
+  target.insertAdjacentHTML('afterbegin', getMobileHeader(title));
+  // モバイルタブバーをbodyの末尾に挿入
+  document.body.insertAdjacentHTML('beforeend', getMobileTabBar(activePage));
   injectMorePopup();
 }
 

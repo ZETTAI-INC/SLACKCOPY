@@ -518,6 +518,10 @@
     var app = document.querySelector('.app');
     var wrapper = app.querySelector('.main-wrapper');
     wrapper.insertAdjacentHTML('beforebegin', getIconSidebar('files'));
+    wrapper.insertAdjacentHTML('beforebegin', getMobileSidebarOverlay());
+    wrapper.insertAdjacentHTML('afterbegin', getMobileHeader('ファイル'));
+    document.body.insertAdjacentHTML('beforeend', getMobileTabBar('files'));
+    injectMorePopup();
 
     document.querySelectorAll('.files-filter-tab').forEach(tab => {
       tab.addEventListener('click', () => {
