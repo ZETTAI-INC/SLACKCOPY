@@ -407,6 +407,12 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const iconUser = document.querySelector('.icon-sidebar-user');
     if (iconUser) iconUser.textContent = initial;
+
+    const wsName = document.getElementById('workspaceName');
+    if (wsName) wsName.innerHTML = displayName + ' <span class="ws-dropdown">&#9662;</span>';
+
+    const searchPh = document.getElementById('searchPlaceholder');
+    if (searchPh) searchPh.textContent = displayName + ' 内を検索する';
   }
 
   // ============ 初期化 ============
