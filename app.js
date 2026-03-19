@@ -16,17 +16,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     messagesContainer.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#666;font-size:14px;">読み込み中...</div>';
   }
 
-  // 認証チェック — 未ログインなら auth.html へリダイレクト
+  // 現在のユーザーを取得（認証ガードは auth-guard.js で処理）
   try {
     currentUser = await getCurrentUser();
-    if (!currentUser) {
-      window.location.href = 'auth.html';
-      return;
-    }
-  } catch (e) {
-    window.location.href = 'auth.html';
-    return;
-  }
+  } catch (e) { /* auth-guard.js がリダイレクト処理 */ }
 
   // ============ Supabaseからチャンネル取得 ============
   async function loadChannels() {
