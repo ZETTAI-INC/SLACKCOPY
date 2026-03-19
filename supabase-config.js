@@ -83,7 +83,10 @@ async function inviteToWorkspace(workspaceId, email, inviterName) {
         await sb.from('channel_members').upsert({ channel_id: ch.id, user_id: data.user.id }, { onConflict: 'channel_id,user_id' })
       }
     }
-    await createNotification(data.user.id, 'invite', (inviterName || 'メンバー') + ' さんがあなたをワークスペースに招待しました。ようこそ！')
+    // ワークスペース名を取得して通知に含める
+    const { data: wsData } = await sb.from('workspaces').select('name').eq('id', workspaceId).single()
+    const wsName = wsData ? wsData.name : 'ワークスペース'
+    await createNotification(data.user.id, 'invite', (inviterName || 'メンバー') + ' さんがあなたを「' + wsName + '」に招待しました。ようこそ！')
   }
   return { user: data.user, tempPassword: tempPassword }
 }
