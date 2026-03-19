@@ -100,6 +100,12 @@ document.addEventListener('DOMContentLoaded', async () => {
       threadHtml = '<div class="message-thread" onclick="openThread(\'' + msg.id + '\')"><span>💬 ' + msg.reply_count + '件の返信</span></div>';
     }
 
+    // 自分のメッセージにだけ削除ボタンを表示
+    let deleteHtml = '';
+    if (currentUser && msg.user_id === currentUser.id) {
+      deleteHtml = '<button class="msg-delete-btn" onclick="handleDeleteMessage(\'' + msg.id + '\')" title="削除">🗑</button>';
+    }
+
     return '<div class="message" data-id="' + msg.id + '">' +
       '<div class="message-avatar" style="background:' + color + ';">' + initial + '</div>' +
       '<div class="message-body">' +
@@ -110,6 +116,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         '<div class="message-text">' + escapeHtml(msg.content) + '</div>' +
         threadHtml +
       '</div>' +
+      deleteHtml +
     '</div>';
   }
 
@@ -188,6 +195,16 @@ document.addEventListener('DOMContentLoaded', async () => {
     div.innerHTML = renderMessageHtml(msg);
     messagesContainer.appendChild(div.firstChild);
     messagesContainer.scrollTop = messagesContainer.scrollHeight;
+  }
+
+  // ============ メッセージ削除 ============
+  window.handleDeleteMessage = async function(messageId) {
+    if (!confirm('このメッセージを削除しますか？')) return;
+    const success = await deleteMessage(messageId);
+    if (success) {
+      const el = messagesContainer.querySelector('[data-id="' + messageId + '"]');
+      if (el) el.remove();
+    }
   }
 
   // ============ スレッド ============

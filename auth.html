@@ -3,106 +3,170 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ログイン - Chat App</title>
-  <link rel="stylesheet" href="style.css">
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+  <title>Slack にサインインする</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&display=swap" rel="stylesheet">
   <style>
-    body { background: #0f0f15; margin: 0; height: 100vh; display: flex; align-items: center; justify-content: center; }
-    .auth-container {
-      width: 400px; padding: 40px; background: #1A1D21;
-      border-radius: 16px; border: 1px solid #333;
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Noto Sans JP', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #fff; color: #1d1c1d; min-height: 100vh;
+      display: flex; flex-direction: column; align-items: center;
     }
-    .auth-logo { text-align: center; margin-bottom: 24px; }
-    .auth-logo-icon {
-      width: 56px; height: 56px; border-radius: 14px; background: #5B2C5E;
-      display: inline-flex; align-items: center; justify-content: center;
-      font-size: 28px; font-weight: 700; color: white; margin-bottom: 12px;
-    }
-    .auth-title { font-size: 22px; font-weight: 700; color: #e8e8e8; text-align: center; margin-bottom: 6px; }
-    .auth-subtitle { font-size: 14px; color: #888; text-align: center; margin-bottom: 28px; }
 
-    .auth-form { display: flex; flex-direction: column; gap: 16px; }
-    .auth-field label {
-      display: block; font-size: 13px; font-weight: 600; color: #aaa; margin-bottom: 6px;
+    /* Header logo */
+    .slack-header {
+      padding: 48px 0 36px;
+      text-align: center;
     }
-    .auth-field input {
-      width: 100%; padding: 10px 14px; border: 1px solid #444; border-radius: 8px;
-      background: #232529; color: #e0e0e0; font-size: 15px; font-family: var(--font);
-      outline: none; box-sizing: border-box;
+    .slack-logo {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-size: 28px; font-weight: 700; color: #1d1c1d; text-decoration: none;
     }
-    .auth-field input:focus { border-color: #1D9BD1; }
-    .auth-field input::placeholder { color: #666; }
+    .slack-logo-icon { width: 28px; height: 28px; }
 
+    /* Main content */
+    .auth-main {
+      width: 100%; max-width: 500px; padding: 0 24px; text-align: center;
+    }
+    .auth-main h1 {
+      font-size: 36px; font-weight: 900; line-height: 1.3;
+      margin-bottom: 10px; letter-spacing: -0.5px;
+    }
+    .auth-main .subtitle {
+      font-size: 16px; color: #454245; margin-bottom: 32px;
+    }
+    .auth-main .subtitle strong { font-weight: 700; color: #1d1c1d; }
+
+    /* Email input */
+    .email-input {
+      width: 100%; padding: 14px 16px; font-size: 18px;
+      border: 1px solid #babbbf; border-radius: 12px;
+      outline: none; font-family: inherit; color: #1d1c1d;
+    }
+    .email-input:focus { border-color: #4a154b; box-shadow: 0 0 0 4px rgba(74,21,75,0.15); }
+    .email-input::placeholder { color: #8d8d8e; }
+
+    /* Password input */
+    .password-input {
+      width: 100%; padding: 14px 16px; font-size: 18px;
+      border: 1px solid #babbbf; border-radius: 12px;
+      outline: none; font-family: inherit; color: #1d1c1d;
+      margin-top: 12px;
+    }
+    .password-input:focus { border-color: #4a154b; box-shadow: 0 0 0 4px rgba(74,21,75,0.15); }
+    .password-input::placeholder { color: #8d8d8e; }
+
+    /* Submit button */
+    .submit-btn {
+      width: 100%; padding: 16px; font-size: 18px; font-weight: 700;
+      background: #4a154b; color: #fff; border: none; border-radius: 12px;
+      cursor: pointer; font-family: inherit; margin-top: 16px;
+      transition: background 0.2s;
+    }
+    .submit-btn:hover { background: #3b1139; }
+    .submit-btn:disabled { background: #8d8d8e; cursor: not-allowed; }
+
+    /* Error */
     .auth-error {
-      display: none; padding: 10px 14px; background: #3a2020;
-      border: 1px solid #e05050; border-radius: 8px;
-      color: #ff8888; font-size: 13px;
+      display: none; padding: 12px 16px; margin-bottom: 16px;
+      background: #fdf2f2; border: 1px solid #e8484e; border-radius: 10px;
+      color: #e8484e; font-size: 14px; text-align: left;
     }
     .auth-error.show { display: block; }
 
-    .auth-submit {
-      width: 100%; padding: 12px; border: none; border-radius: 8px;
-      background: #007a5a; color: white; font-size: 15px; font-weight: 700;
-      cursor: pointer; font-family: var(--font);
+    /* Divider */
+    .divider {
+      display: flex; align-items: center; gap: 16px;
+      margin: 24px 0; color: #8d8d8e; font-size: 15px;
     }
-    .auth-submit:hover { background: #006248; }
-    .auth-submit:disabled { background: #444; color: #888; cursor: not-allowed; }
-
-    .auth-divider {
-      display: flex; align-items: center; gap: 12px; margin: 4px 0;
-      color: #555; font-size: 12px;
-    }
-    .auth-divider::before, .auth-divider::after {
-      content: ''; flex: 1; height: 1px; background: #333;
+    .divider::before, .divider::after {
+      content: ''; flex: 1; height: 1px; background: #ddd;
     }
 
+    /* OAuth buttons */
+    .oauth-buttons { display: flex; gap: 12px; }
+    .oauth-btn {
+      flex: 1; display: flex; align-items: center; justify-content: center; gap: 10px;
+      padding: 14px 16px; font-size: 16px; font-weight: 600;
+      border: 2px solid #ddd; border-radius: 12px;
+      background: #fff; cursor: pointer; font-family: inherit; color: #1d1c1d;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .oauth-btn:hover { background: #f6f6f6; border-color: #bbb; }
+    .oauth-btn svg { flex-shrink: 0; }
+
+    /* Switch mode link */
     .auth-switch {
-      text-align: center; font-size: 14px; color: #888;
+      margin-top: 32px; font-size: 15px; color: #616061; text-align: center;
     }
     .auth-switch a {
-      color: #1D9BD1; text-decoration: none; cursor: pointer;
+      color: #1264a3; text-decoration: none; cursor: pointer;
     }
     .auth-switch a:hover { text-decoration: underline; }
 
-    .auth-success {
-      display: none; text-align: center; padding: 20px 0;
-    }
+    /* Signup success */
+    .auth-success { display: none; text-align: center; padding: 20px 0; }
     .auth-success.show { display: block; }
     .auth-success-icon { font-size: 48px; margin-bottom: 12px; }
-    .auth-success h3 { color: #e8e8e8; font-size: 18px; margin-bottom: 8px; }
-    .auth-success p { color: #888; font-size: 14px; line-height: 1.6; }
+    .auth-success h3 { font-size: 20px; font-weight: 700; margin-bottom: 8px; }
+    .auth-success p { font-size: 15px; color: #616061; line-height: 1.6; }
+
+    /* Footer */
+    .auth-footer {
+      margin-top: auto; padding: 32px 24px;
+      font-size: 13px; color: #8d8d8e; text-align: center;
+      display: flex; gap: 24px; justify-content: center;
+    }
+    .auth-footer a { color: #8d8d8e; text-decoration: none; }
+    .auth-footer a:hover { text-decoration: underline; }
   </style>
 </head>
 <body>
-  <div class="auth-container">
-    <div class="auth-logo">
-      <div class="auth-logo-icon">K</div>
-    </div>
+  <!-- Slack logo -->
+  <div class="slack-header">
+    <a class="slack-logo" href="#">
+      <svg class="slack-logo-icon" viewBox="0 0 54 54" xmlns="http://www.w3.org/2000/svg">
+        <g fill="none" fill-rule="evenodd">
+          <path d="M19.712.133a5.381 5.381 0 0 0-5.376 5.387 5.381 5.381 0 0 0 5.376 5.386h5.376V5.52A5.381 5.381 0 0 0 19.712.133m0 14.365H5.376A5.381 5.381 0 0 0 0 19.884a5.381 5.381 0 0 0 5.376 5.387h14.336a5.381 5.381 0 0 0 5.376-5.387 5.381 5.381 0 0 0-5.376-5.386" fill="#36C5F0"/>
+          <path d="M53.76 19.884a5.381 5.381 0 0 0-5.376-5.386 5.381 5.381 0 0 0-5.376 5.386v5.387h5.376a5.381 5.381 0 0 0 5.376-5.387m-14.336 0V5.52A5.381 5.381 0 0 0 34.048.133a5.381 5.381 0 0 0-5.376 5.387v14.364a5.381 5.381 0 0 0 5.376 5.387 5.381 5.381 0 0 0 5.376-5.387" fill="#2EB67D"/>
+          <path d="M34.048 54a5.381 5.381 0 0 0 5.376-5.387 5.381 5.381 0 0 0-5.376-5.386h-5.376v5.386A5.381 5.381 0 0 0 34.048 54m0-14.365h14.336a5.381 5.381 0 0 0 5.376-5.386 5.381 5.381 0 0 0-5.376-5.387H34.048a5.381 5.381 0 0 0-5.376 5.387 5.381 5.381 0 0 0 5.376 5.386" fill="#ECB22E"/>
+          <path d="M0 34.249a5.381 5.381 0 0 0 5.376 5.386 5.381 5.381 0 0 0 5.376-5.386v-5.387H5.376A5.381 5.381 0 0 0 0 34.25m14.336-.001v14.364A5.381 5.381 0 0 0 19.712 54a5.381 5.381 0 0 0 5.376-5.387V34.249a5.381 5.381 0 0 0-5.376-5.387 5.381 5.381 0 0 0-5.376 5.387" fill="#E01E5A"/>
+        </g>
+      </svg>
+      slack
+    </a>
+  </div>
 
+  <div class="auth-main">
     <!-- Login / Signup Form -->
     <div id="authForm">
-      <h1 class="auth-title" id="authTitle">ログイン</h1>
-      <p class="auth-subtitle" id="authSubtitle">メールアドレスとパスワードでログイン</p>
+      <h1 id="authTitle">最初にメールアドレスを入力してください</h1>
+      <p class="subtitle" id="authSubtitle"><strong>仕事用のメールアドレス</strong>を使うことをおすすめします。</p>
 
       <div class="auth-error" id="authError"></div>
 
-      <form class="auth-form" id="authFormElement" onsubmit="return false;">
-        <div class="auth-field">
-          <label for="email">メールアドレス</label>
-          <input type="email" id="email" placeholder="name@example.com" required>
-        </div>
-        <div class="auth-field">
-          <label for="password">パスワード</label>
-          <input type="password" id="password" placeholder="パスワード（6文字以上）" required minlength="6">
-        </div>
-        <button type="submit" class="auth-submit" id="authSubmit">ログイン</button>
+      <form id="authFormElement" onsubmit="return false;">
+        <input type="email" class="email-input" id="email" placeholder="名前@work-email.com" required>
+        <input type="password" class="password-input" id="password" placeholder="パスワード（6文字以上）" required minlength="6">
+        <button type="submit" class="submit-btn" id="authSubmit">続行する</button>
       </form>
 
-      <div class="auth-divider">または</div>
+      <div class="divider">その他のオプション</div>
+
+      <div class="oauth-buttons">
+        <button class="oauth-btn" type="button">
+          <svg width="20" height="20" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+          Google
+        </button>
+        <button class="oauth-btn" type="button">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="#000"><path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/></svg>
+          Apple
+        </button>
+      </div>
 
       <div class="auth-switch">
-        <span id="switchText">アカウントをお持ちでない方は </span>
-        <a id="switchLink" onclick="toggleMode()">新規登録</a>
+        <span id="switchText">すでに Slack をお使いですか？</span><br>
+        <a id="switchLink" onclick="toggleMode()">既存のワークスペースにサインイン</a>
       </div>
     </div>
 
@@ -112,9 +176,16 @@
       <h3>確認メールを送信しました</h3>
       <p>メール内のリンクをクリックしてアカウントを有効にしてください。</p>
       <div style="margin-top:16px;">
-        <a onclick="showLogin()" style="color:#1D9BD1;cursor:pointer;font-size:14px;">ログインページへ戻る</a>
+        <a onclick="showLogin()" style="color:#1264a3;cursor:pointer;font-size:14px;">ログインページへ戻る</a>
       </div>
     </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="auth-footer">
+    <a href="#">プライバシーと利用規約</a>
+    <a href="#">お問い合わせ</a>
+    <a href="#">地域を変更</a>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
@@ -142,20 +213,20 @@
         showLogin();
       } else {
         authTitle.textContent = '新規登録';
-        authSubtitle.textContent = 'メールアドレスとパスワードで登録';
+        authSubtitle.innerHTML = '<strong>仕事用のメールアドレス</strong>を使うことをおすすめします。';
         authSubmit.textContent = 'アカウントを作成';
-        switchText.textContent = 'すでにアカウントをお持ちの方は ';
-        switchLink.textContent = 'ログイン';
+        switchText.textContent = 'すでにアカウントをお持ちの方は';
+        switchLink.textContent = 'サインイン';
       }
     }
 
     function showLogin() {
       isLoginMode = true;
-      authTitle.textContent = 'ログイン';
-      authSubtitle.textContent = 'メールアドレスとパスワードでログイン';
-      authSubmit.textContent = 'ログイン';
-      switchText.textContent = 'アカウントをお持ちでない方は ';
-      switchLink.textContent = '新規登録';
+      authTitle.textContent = '最初にメールアドレスを入力してください';
+      authSubtitle.innerHTML = '<strong>仕事用のメールアドレス</strong>を使うことをおすすめします。';
+      authSubmit.textContent = '続行する';
+      switchText.textContent = 'すでに Slack をお使いですか？';
+      switchLink.textContent = '既存のワークスペースにサインイン';
       authForm.style.display = '';
       signupSuccess.classList.remove('show');
       authError.classList.remove('show');
@@ -177,24 +248,20 @@
 
       try {
         if (isLoginMode) {
-          // ログイン
           const result = await signInWithEmail(email, password);
           if (result.error) {
             showError(result.error);
             authSubmit.disabled = false;
             return;
           }
-          // 成功 → メインページへ
           window.location.href = 'index.html';
         } else {
-          // サインアップ
           const result = await signUpWithEmail(email, password);
           if (result.error) {
             showError(result.error);
             authSubmit.disabled = false;
             return;
           }
-          // 成功 → 確認メール送信画面
           authForm.style.display = 'none';
           signupSuccess.classList.add('show');
         }

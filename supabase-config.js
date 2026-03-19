@@ -52,6 +52,14 @@ async function sendMessage(channelId, content) {
   return data ? data[0] : null
 }
 
+// ============ メッセージ削除 ============
+async function deleteMessage(messageId) {
+  const sb = getSupabase()
+  const { error } = await sb.from('messages').delete().eq('id', messageId)
+  if (error) { console.error('deleteMessage error:', error); return false }
+  return true
+}
+
 // ============ スレッド ============
 async function fetchThreadReplies(parentId) {
   const sb = getSupabase()
