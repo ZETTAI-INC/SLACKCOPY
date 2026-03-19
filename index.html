@@ -98,9 +98,28 @@
       </div>
     </aside>
 
+    <!-- Mobile sidebar overlay -->
+    <div class="mobile-sidebar-overlay" id="mobileSidebarOverlay" onclick="closeMobileSidebar()"></div>
+
     <!-- Main Area -->
     <div class="main-wrapper">
-      <!-- Top Bar -->
+      <!-- Mobile Header -->
+      <div class="mobile-header">
+        <button class="mobile-header-back" onclick="openMobileSidebar()">
+          <svg width="22" height="22" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3h14M3 8h14M3 13h14"/></svg>
+        </button>
+        <span class="mobile-header-title" id="mobileChannelTitle"># 新しいチャンネル</span>
+        <div class="mobile-header-actions">
+          <button onclick="location.href='search.html'">
+            <svg width="20" height="20" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="7.5" cy="7.5" r="5"/><path d="M11.5 11.5l4 4"/></svg>
+          </button>
+          <button onclick="location.href='members.html'">
+            <svg width="20" height="20" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="6.5" cy="6" r="3"/><path d="M1 16c0-3 2.5-5 5.5-5s5.5 2 5.5 5"/><circle cx="13.5" cy="6" r="2"/><path d="M13.5 10c2 0 3.5 1.5 3.5 3.5"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Top Bar (desktop) -->
       <div class="top-bar">
         <div class="top-bar-left">
           <button class="top-bar-arrow">&#8592;</button>
@@ -271,6 +290,32 @@
   <!-- User avatar bottom-left overlay -->
   <img class="user-icon-bottom" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28'%3E%3Crect width='28' height='28' rx='6' fill='%23f0c040'/%3E%3Ctext x='14' y='20' text-anchor='middle' font-size='16'%3E%F0%9F%90%A4%3C/text%3E%3C/svg%3E" alt="">
 
+  <!-- Mobile Bottom Tab Bar -->
+  <div class="mobile-tab-bar">
+    <nav>
+      <a href="index.html" class="mobile-tab-item active">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 8l7-5 7 5v8a1 1 0 01-1 1h-3v-4H7v4H4a1 1 0 01-1-1V8z"/></svg>
+        <span>ホーム</span>
+      </a>
+      <a href="dm.html" class="mobile-tab-item">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 3h12a1 1 0 011 1v9a1 1 0 01-1 1H7l-4 3V4a1 1 0 011-1z"/></svg>
+        <span>DM</span>
+      </a>
+      <a href="activity.html" class="mobile-tab-item">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 7A4 4 0 006 7v4l-2 2h12l-2-2V7z"/><path d="M8.5 15a1.5 1.5 0 003 0"/></svg>
+        <span>アクティビティ</span>
+      </a>
+      <a href="search.html" class="mobile-tab-item">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8.5" cy="8.5" r="5.5"/><path d="M13 13l4.5 4.5"/></svg>
+        <span>検索</span>
+      </a>
+      <button class="mobile-tab-item" onclick="handleLogout()">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="10" cy="7" r="4"/><path d="M3 18c0-3.5 3-6 7-6s7 2.5 7 6"/></svg>
+        <span>You</span>
+      </button>
+    </nav>
+  </div>
+
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script src="supabase-config.js"></script>
   <script>
@@ -279,6 +324,29 @@
       await signOut();
       window.location.href = 'auth.html';
     }
+
+    // Mobile sidebar toggle
+    function openMobileSidebar() {
+      document.querySelector('.channel-sidebar').classList.add('mobile-open');
+      document.getElementById('mobileSidebarOverlay').classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+    function closeMobileSidebar() {
+      document.querySelector('.channel-sidebar').classList.remove('mobile-open');
+      document.getElementById('mobileSidebarOverlay').classList.remove('open');
+      document.body.style.overflow = '';
+    }
+
+    // Close sidebar when channel is tapped on mobile
+    document.querySelectorAll('.channel-item').forEach(btn => {
+      btn.addEventListener('click', () => {
+        closeMobileSidebar();
+        // Update mobile header title
+        const name = btn.querySelector('span:last-child')?.textContent || '';
+        const el = document.getElementById('mobileChannelTitle');
+        if (el) el.textContent = '# ' + name;
+      });
+    });
   </script>
   <script src="app.js"></script>
 </body>

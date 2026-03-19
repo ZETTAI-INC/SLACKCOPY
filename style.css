@@ -466,8 +466,118 @@ textarea::placeholder { color: #777; }
   cursor: pointer;
 }
 
+/* ============ MOBILE BOTTOM TAB BAR ============ */
+.mobile-tab-bar {
+  display: none;
+  position: fixed; bottom: 0; left: 0; right: 0;
+  background: #1A1D21; border-top: 1px solid #333;
+  z-index: 100; padding: 4px 0;
+  padding-bottom: env(safe-area-inset-bottom, 0);
+}
+.mobile-tab-bar nav {
+  display: flex; justify-content: space-around; align-items: center;
+}
+.mobile-tab-item {
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+  padding: 6px 0; min-width: 56px;
+  background: none; border: none; color: #8d8d8e;
+  font-size: 10px; font-family: var(--font); cursor: pointer;
+  text-decoration: none;
+}
+.mobile-tab-item.active { color: #fff; }
+.mobile-tab-item svg { width: 22px; height: 22px; }
+
+/* Mobile sidebar overlay */
+.mobile-sidebar-overlay {
+  display: none; position: fixed; inset: 0; z-index: 200;
+  background: rgba(0,0,0,0.5);
+}
+.mobile-sidebar-overlay.open { display: block; }
+
+/* Mobile header */
+.mobile-header {
+  display: none;
+  align-items: center; gap: 10px;
+  padding: 10px 12px; background: #1A1D21;
+  border-bottom: 1px solid #333; flex-shrink: 0;
+}
+.mobile-header-back {
+  background: none; border: none; color: #ddd; padding: 4px;
+  cursor: pointer; display: flex; align-items: center;
+}
+.mobile-header-title {
+  font-size: 17px; font-weight: 700; color: #e8e8e8;
+  flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.mobile-header-actions {
+  display: flex; gap: 8px; flex-shrink: 0;
+}
+.mobile-header-actions button {
+  background: none; border: none; color: #9b9b9b; padding: 4px;
+  cursor: pointer; display: flex; align-items: center;
+}
+
 @media (max-width: 768px) {
-  .icon-sidebar { width: 44px; }
-  .channel-sidebar { width: 220px; }
+  /* Hide desktop elements */
+  .icon-sidebar { display: none !important; }
+  .channel-sidebar {
+    position: fixed; left: 0; top: 0; bottom: 0;
+    width: 85vw; max-width: 320px; z-index: 210;
+    transform: translateX(-100%);
+    transition: transform 0.25s ease;
+  }
+  .channel-sidebar.mobile-open {
+    transform: translateX(0);
+  }
+  .top-bar { display: none !important; }
+  .channel-header { display: none !important; }
+  .channel-tabs { display: none !important; }
+  .bottom-bar { display: none !important; }
   .thread-panel { display: none !important; }
+  .user-icon-bottom { display: none !important; }
+
+  /* Show mobile elements */
+  .mobile-tab-bar { display: block; }
+  .mobile-header { display: flex; }
+
+  /* Main layout adjustments */
+  .app { flex-direction: column; }
+  .main-wrapper { flex: 1; display: flex; flex-direction: column; min-height: 0; }
+  .main-content { flex: 1; display: flex; flex-direction: column; min-height: 0; }
+
+  /* Messages */
+  .messages-container {
+    padding: 0 12px 8px;
+    padding-bottom: 8px;
+  }
+
+  /* Message input - simplified for mobile */
+  .message-input-container {
+    margin: 0 8px 8px;
+    margin-bottom: calc(8px + 56px + env(safe-area-inset-bottom, 0));
+    border-radius: 24px; border: 1px solid #444;
+  }
+  .message-toolbar { display: none !important; }
+  .input-wrapper { padding: 6px 14px; }
+  .input-wrapper textarea { font-size: 16px; }
+  .input-actions { padding: 2px 6px 4px; }
+  .input-actions-left { gap: 0; }
+  .input-actions-left .action-btn { padding: 4px 5px; }
+  .input-actions-left .action-btn-text { display: none; }
+
+  /* Message styles */
+  .message { padding: 8px 0; }
+  .message-avatar { width: 32px; height: 32px; font-size: 14px; }
+  .message-author { font-size: 14px; }
+  .message-text { font-size: 14px; }
+  .msg-delete-btn { opacity: 1; top: 6px; right: 2px; font-size: 12px; padding: 2px 5px; }
+
+  /* Welcome section */
+  .welcome-title { font-size: 20px; }
+  .template-cards { gap: 8px; }
+  .template-card { min-width: 170px; }
+
+  /* Day divider */
+  .day-divider { margin: 12px 0 10px; }
+  .day-divider span { font-size: 12px; padding: 3px 12px; }
 }
