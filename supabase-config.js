@@ -71,22 +71,27 @@ async function getWorkspace(workspaceId) {
 
 async function inviteToWorkspace(workspaceId, email, inviterName) {
   const sb = getSupabase()
+  // 招待前にワークスペース名とチャンネル一覧を取得（signUp後にセッションが変わる可能性があるため）
+  const { data: wsData } = await sb.from('workspaces').select('name').eq('id', workspaceId).single()
+  const wsName = wsData ? wsData.name : 'ワークスペース'
+  const { data: channels } = await sb.from('channels').select('id').eq('workspace_id', workspaceId)
+
   const tempPassword = 'Welcome!' + Math.random().toString(36).slice(2, 10)
   const { data, error } = await sb.auth.signUp({ email: email, password: tempPassword })
   if (error) return { error: error.message }
   if (data.user) {
-    await sb.from('workspace_members').insert({ workspace_id: workspaceId, user_id: data.user.id, role: 'member' })
+    const userId = data.user.id
+    // workspace_membersに追加
+    await sb.from('workspace_members').insert({ workspace_id: workspaceId, user_id: userId, role: 'member' })
     // 全チャンネルに自動参加
-    const { data: channels } = await sb.from('channels').select('id').eq('workspace_id', workspaceId)
     if (channels) {
       for (const ch of channels) {
-        await sb.from('channel_members').upsert({ channel_id: ch.id, user_id: data.user.id }, { onConflict: 'channel_id,user_id' })
+        await sb.from('channel_members').upsert({ channel_id: ch.id, user_id: userId }, { onConflict: 'channel_id,user_id' })
       }
     }
-    // ワークスペース名を取得して通知に含める
-    const { data: wsData } = await sb.from('workspaces').select('name').eq('id', workspaceId).single()
-    const wsName = wsData ? wsData.name : 'ワークスペース'
-    await createNotification(data.user.id, 'invite', (inviterName || 'メンバー') + ' さんがあなたを「' + wsName + '」に招待しました。ようこそ！')
+    // SECURITY DEFINER関数で通知作成（セッション変更の影響を受けない）
+    const msg = (inviterName || 'メンバー') + ' さんがあなたを「' + wsName + '」に招待しました。ようこそ！'
+    await sb.rpc('create_notification', { target_user_id: userId, notif_type: 'invite', notif_message: msg })
   }
   return { user: data.user, tempPassword: tempPassword }
 }
