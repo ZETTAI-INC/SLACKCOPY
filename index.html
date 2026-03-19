@@ -46,7 +46,7 @@
         <button class="icon-add-btn">
           <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 2v12M2 8h12"/></svg>
         </button>
-        <div class="icon-sidebar-user" title="ta ko">&#128036;</div>
+        <div class="icon-sidebar-user" title="クリックでログアウト" style="cursor:pointer;" onclick="handleLogout()">&#128036;</div>
       </div>
     </aside>
 
@@ -273,6 +273,13 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script src="supabase-config.js"></script>
+  <script>
+    async function handleLogout() {
+      if (!confirm('ログアウトしますか？')) return;
+      await signOut();
+      window.location.href = 'auth.html';
+    }
+  </script>
   <script src="app.js"></script>
 </body>
 </html>

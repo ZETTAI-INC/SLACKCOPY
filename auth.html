@@ -83,26 +83,18 @@
       content: ''; flex: 1; height: 1px; background: #ddd;
     }
 
-    /* OAuth buttons */
-    .oauth-buttons { display: flex; gap: 12px; }
-    .oauth-btn {
-      flex: 1; display: flex; align-items: center; justify-content: center; gap: 10px;
-      padding: 14px 16px; font-size: 16px; font-weight: 600;
-      border: 2px solid #ddd; border-radius: 12px;
-      background: #fff; cursor: pointer; font-family: inherit; color: #1d1c1d;
-      transition: border-color 0.2s, background 0.2s;
+    /* Tab switcher */
+    .auth-tabs {
+      display: flex; margin-bottom: 28px; border-bottom: 2px solid #eee;
     }
-    .oauth-btn:hover { background: #f6f6f6; border-color: #bbb; }
-    .oauth-btn svg { flex-shrink: 0; }
-
-    /* Switch mode link */
-    .auth-switch {
-      margin-top: 32px; font-size: 15px; color: #616061; text-align: center;
+    .auth-tab {
+      flex: 1; padding: 14px 0; font-size: 16px; font-weight: 700;
+      background: none; border: none; border-bottom: 3px solid transparent;
+      cursor: pointer; font-family: inherit; color: #8d8d8e;
+      margin-bottom: -2px; transition: color 0.2s, border-color 0.2s;
     }
-    .auth-switch a {
-      color: #1264a3; text-decoration: none; cursor: pointer;
-    }
-    .auth-switch a:hover { text-decoration: underline; }
+    .auth-tab.active { color: #4a154b; border-bottom-color: #4a154b; }
+    .auth-tab:hover:not(.active) { color: #1d1c1d; }
 
     /* Signup success */
     .auth-success { display: none; text-align: center; padding: 20px 0; }
@@ -138,36 +130,32 @@
   </div>
 
   <div class="auth-main">
-    <!-- Login / Signup Form -->
+    <!-- Tab switcher -->
     <div id="authForm">
-      <h1 id="authTitle">最初にメールアドレスを入力してください</h1>
-      <p class="subtitle" id="authSubtitle"><strong>仕事用のメールアドレス</strong>を使うことをおすすめします。</p>
+      <h1>ワークスペースにサインイン</h1>
+      <p class="subtitle"><strong>仕事用のメールアドレス</strong>を使うことをおすすめします。</p>
+
+      <div class="auth-tabs">
+        <button class="auth-tab active" id="tabLogin" onclick="switchTab('login')">ログイン</button>
+        <button class="auth-tab" id="tabSignup" onclick="switchTab('signup')">新規登録</button>
+      </div>
 
       <div class="auth-error" id="authError"></div>
 
-      <form id="authFormElement" onsubmit="return false;">
-        <input type="email" class="email-input" id="email" placeholder="名前@work-email.com" required>
-        <input type="password" class="password-input" id="password" placeholder="パスワード（6文字以上）" required minlength="6">
-        <button type="submit" class="submit-btn" id="authSubmit">続行する</button>
+      <!-- Login form -->
+      <form id="loginForm" onsubmit="return false;">
+        <input type="email" class="email-input" id="loginEmail" placeholder="名前@work-email.com" required>
+        <input type="password" class="password-input" id="loginPassword" placeholder="パスワード" required minlength="6">
+        <button type="submit" class="submit-btn" id="loginSubmit">サインイン</button>
       </form>
 
-      <div class="divider">その他のオプション</div>
-
-      <div class="oauth-buttons">
-        <button class="oauth-btn" type="button">
-          <svg width="20" height="20" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
-          Google
-        </button>
-        <button class="oauth-btn" type="button">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="#000"><path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/></svg>
-          Apple
-        </button>
-      </div>
-
-      <div class="auth-switch">
-        <span id="switchText">すでに Slack をお使いですか？</span><br>
-        <a id="switchLink" onclick="toggleMode()">既存のワークスペースにサインイン</a>
-      </div>
+      <!-- Signup form -->
+      <form id="signupForm" onsubmit="return false;" style="display:none;">
+        <input type="email" class="email-input" id="signupEmail" placeholder="名前@work-email.com" required>
+        <input type="password" class="password-input" id="signupPassword" placeholder="パスワード（6文字以上）" required minlength="6">
+        <input type="password" class="password-input" id="signupPasswordConfirm" placeholder="パスワード（確認）" required minlength="6">
+        <button type="submit" class="submit-btn" id="signupSubmit">アカウントを作成</button>
+      </form>
     </div>
 
     <!-- Signup Success -->
@@ -191,45 +179,27 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script src="supabase-config.js"></script>
   <script>
-    let isLoginMode = true;
-
-    const authTitle = document.getElementById('authTitle');
-    const authSubtitle = document.getElementById('authSubtitle');
-    const authSubmit = document.getElementById('authSubmit');
     const authError = document.getElementById('authError');
-    const switchText = document.getElementById('switchText');
-    const switchLink = document.getElementById('switchLink');
-    const authForm = document.getElementById('authForm');
+    const loginForm = document.getElementById('loginForm');
+    const signupForm = document.getElementById('signupForm');
     const signupSuccess = document.getElementById('signupSuccess');
-    const formElement = document.getElementById('authFormElement');
-    const emailInput = document.getElementById('email');
-    const passwordInput = document.getElementById('password');
+    const authForm = document.getElementById('authForm');
+    const tabLogin = document.getElementById('tabLogin');
+    const tabSignup = document.getElementById('tabSignup');
 
-    function toggleMode() {
-      isLoginMode = !isLoginMode;
+    function switchTab(mode) {
       authError.classList.remove('show');
-
-      if (isLoginMode) {
-        showLogin();
+      if (mode === 'login') {
+        tabLogin.classList.add('active');
+        tabSignup.classList.remove('active');
+        loginForm.style.display = '';
+        signupForm.style.display = 'none';
       } else {
-        authTitle.textContent = '新規登録';
-        authSubtitle.innerHTML = '<strong>仕事用のメールアドレス</strong>を使うことをおすすめします。';
-        authSubmit.textContent = 'アカウントを作成';
-        switchText.textContent = 'すでにアカウントをお持ちの方は';
-        switchLink.textContent = 'サインイン';
+        tabLogin.classList.remove('active');
+        tabSignup.classList.add('active');
+        loginForm.style.display = 'none';
+        signupForm.style.display = '';
       }
-    }
-
-    function showLogin() {
-      isLoginMode = true;
-      authTitle.textContent = '最初にメールアドレスを入力してください';
-      authSubtitle.innerHTML = '<strong>仕事用のメールアドレス</strong>を使うことをおすすめします。';
-      authSubmit.textContent = '続行する';
-      switchText.textContent = 'すでに Slack をお使いですか？';
-      switchLink.textContent = '既存のワークスペースにサインイン';
-      authForm.style.display = '';
-      signupSuccess.classList.remove('show');
-      authError.classList.remove('show');
     }
 
     function showError(msg) {
@@ -237,39 +207,51 @@
       authError.classList.add('show');
     }
 
-    formElement.addEventListener('submit', async () => {
-      const email = emailInput.value.trim();
-      const password = passwordInput.value;
-
+    // ログイン
+    loginForm.addEventListener('submit', async () => {
+      const email = document.getElementById('loginEmail').value.trim();
+      const password = document.getElementById('loginPassword').value;
       if (!email || !password) return;
 
-      authSubmit.disabled = true;
+      const btn = document.getElementById('loginSubmit');
+      btn.disabled = true;
       authError.classList.remove('show');
 
       try {
-        if (isLoginMode) {
-          const result = await signInWithEmail(email, password);
-          if (result.error) {
-            showError(result.error);
-            authSubmit.disabled = false;
-            return;
-          }
-          window.location.href = 'index.html';
-        } else {
-          const result = await signUpWithEmail(email, password);
-          if (result.error) {
-            showError(result.error);
-            authSubmit.disabled = false;
-            return;
-          }
-          authForm.style.display = 'none';
-          signupSuccess.classList.add('show');
-        }
+        const result = await signInWithEmail(email, password);
+        if (result.error) { showError(result.error); btn.disabled = false; return; }
+        window.location.href = 'index.html';
       } catch (e) {
         showError('エラーが発生しました: ' + e.message);
       }
+      btn.disabled = false;
+    });
 
-      authSubmit.disabled = false;
+    // 新規登録
+    signupForm.addEventListener('submit', async () => {
+      const email = document.getElementById('signupEmail').value.trim();
+      const password = document.getElementById('signupPassword').value;
+      const passwordConfirm = document.getElementById('signupPasswordConfirm').value;
+      if (!email || !password) return;
+
+      if (password !== passwordConfirm) {
+        showError('パスワードが一致しません。');
+        return;
+      }
+
+      const btn = document.getElementById('signupSubmit');
+      btn.disabled = true;
+      authError.classList.remove('show');
+
+      try {
+        const result = await signUpWithEmail(email, password);
+        if (result.error) { showError(result.error); btn.disabled = false; return; }
+        authForm.style.display = 'none';
+        signupSuccess.classList.add('show');
+      } catch (e) {
+        showError('エラーが発生しました: ' + e.message);
+      }
+      btn.disabled = false;
     });
 
     // 既にログイン済みならリダイレクト
