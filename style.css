@@ -200,7 +200,7 @@ html, body {
   min-width: 18px; height: 18px; text-align: center; line-height: 18px;
 }
 
-.sidebar-footer { padding: 16px 14px 12px; text-align: center; }
+.sidebar-footer { padding: 12px 14px; text-align: center; flex-shrink: 0; border-top: 1px solid #333; }
 .sidebar-footer-text { font-size: 13px; color: rgba(188,171,188,0.5); margin-bottom: 12px; line-height: 1.5; }
 .invite-btn {
   display: flex; align-items: center; justify-content: center; gap: 8px;
