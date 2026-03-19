@@ -12,20 +12,80 @@ function getSupabase() {
   return _supabaseClient
 }
 
-// ============ チャンネル ============
-async function fetchChannels() {
+// ============ ワークスペース ============
+async function fetchMyWorkspaces() {
   const sb = getSupabase()
+  const user = await getCurrentUser()
+  if (!user) return []
   const { data, error } = await sb
-    .from('channels')
-    .select('*')
-    .order('created_at', { ascending: true })
+    .from('workspace_members')
+    .select('workspace_id, role, workspaces(*)')
+    .eq('user_id', user.id)
+  if (error) { console.error('fetchMyWorkspaces error:', error); return [] }
+  return (data || []).map(d => ({ ...d.workspaces, role: d.role }))
+}
+
+async function createWorkspace(name) {
+  const sb = getSupabase()
+  const user = await getCurrentUser()
+  if (!user) return null
+  const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') + '-' + Date.now().toString(36)
+  const { data, error } = await sb.from('workspaces').insert({
+    name: name, slug: slug, owner_id: user.id
+  }).select()
+  if (error) { console.error('createWorkspace error:', error); return null }
+  const ws = data[0]
+  // オーナーとして参加
+  await sb.from('workspace_members').insert({ workspace_id: ws.id, user_id: user.id, role: 'owner' })
+  // デフォルトチャンネル作成
+  await sb.from('channels').insert([
+    { name: 'general', description: '全体の会話用', workspace_id: ws.id },
+    { name: 'random', description: '雑談チャンネル', workspace_id: ws.id },
+  ])
+  return ws
+}
+
+async function getWorkspace(workspaceId) {
+  const sb = getSupabase()
+  const { data, error } = await sb.from('workspaces').select('*').eq('id', workspaceId).single()
+  if (error) { console.error('getWorkspace error:', error); return null }
+  return data
+}
+
+async function inviteToWorkspace(workspaceId, email, inviterName) {
+  const sb = getSupabase()
+  const tempPassword = 'Welcome!' + Math.random().toString(36).slice(2, 10)
+  const { data, error } = await sb.auth.signUp({ email: email, password: tempPassword })
+  if (error) return { error: error.message }
+  if (data.user) {
+    await sb.from('workspace_members').insert({ workspace_id: workspaceId, user_id: data.user.id, role: 'member' })
+    // 全チャンネルに自動参加
+    const { data: channels } = await sb.from('channels').select('id').eq('workspace_id', workspaceId)
+    if (channels) {
+      for (const ch of channels) {
+        await sb.from('channel_members').upsert({ channel_id: ch.id, user_id: data.user.id }, { onConflict: 'channel_id,user_id' })
+      }
+    }
+    await createNotification(data.user.id, 'invite', (inviterName || 'メンバー') + ' さんがあなたをワークスペースに招待しました。ようこそ！')
+  }
+  return { user: data.user, tempPassword: tempPassword }
+}
+
+// ============ チャンネル ============
+async function fetchChannels(workspaceId) {
+  const sb = getSupabase()
+  let query = sb.from('channels').select('*').order('created_at', { ascending: true })
+  if (workspaceId) query = query.eq('workspace_id', workspaceId)
+  const { data, error } = await query
   if (error) { console.error('fetchChannels error:', error); return [] }
   return data || []
 }
 
-async function createChannel(name) {
+async function createChannel(name, workspaceId) {
   const sb = getSupabase()
-  const { data, error } = await sb.from('channels').insert({ name: name }).select()
+  const row = { name: name }
+  if (workspaceId) row.workspace_id = workspaceId
+  const { data, error } = await sb.from('channels').insert(row).select()
   if (error) { console.error('createChannel error:', error); return null }
   return data ? data[0] : null
 }
@@ -212,24 +272,7 @@ async function createNotification(userId, type, message) {
   if (error) console.error('createNotification error:', error)
 }
 
-async function inviteUserByEmail(email, inviterName) {
-  const sb = getSupabase()
-  const tempPassword = 'Welcome!' + Math.random().toString(36).slice(2, 10)
-  const { data, error } = await sb.auth.signUp({
-    email: email,
-    password: tempPassword,
-  })
-  if (error) return { error: error.message }
-  // 招待された人に通知を作成
-  if (data.user) {
-    await createNotification(
-      data.user.id,
-      'invite',
-      (inviterName || 'メンバー') + ' さんがあなたをワークスペースに招待しました。ようこそ！'
-    )
-  }
-  return { user: data.user, tempPassword: tempPassword }
-}
+// inviteUserByEmail は inviteToWorkspace に統合済み
 
 async function getCurrentUser() {
   const sb = getSupabase()

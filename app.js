@@ -11,6 +11,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   let joinedChannelIds = [];
   let realtimeSubscription = null;
   let currentUser = null;
+  const currentWorkspaceId = localStorage.getItem('currentWorkspaceId');
 
   // ローディング中はメッセージ領域を隠す
   if (messagesContainer) {
@@ -24,7 +25,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // ============ Supabaseからチャンネル取得 ============
   async function loadChannels() {
-    channels = await fetchChannels();
+    channels = await fetchChannels(currentWorkspaceId);
     joinedChannelIds = await fetchMyChannelIds();
     console.log('Loaded channels:', channels, 'Joined:', joinedChannelIds);
 
@@ -93,7 +94,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       e.stopPropagation();
       const name = prompt('チャンネル名を入力してください');
       if (!name || !name.trim()) return;
-      const ch = await createChannel(name.trim());
+      const ch = await createChannel(name.trim(), currentWorkspaceId);
       if (!ch) { alert('チャンネルの作成に失敗しました'); return; }
       await joinChannel(ch.id);
       joinedChannelIds.push(ch.id);
@@ -408,18 +409,25 @@ document.addEventListener('DOMContentLoaded', async () => {
     const iconUser = document.querySelector('.icon-sidebar-user');
     if (iconUser) iconUser.textContent = initial;
 
-    const wsName = document.getElementById('workspaceName');
-    if (wsName) wsName.innerHTML = displayName + ' <span class="ws-dropdown">&#9662;</span>';
-
-    const searchPh = document.getElementById('searchPlaceholder');
-    if (searchPh) searchPh.textContent = displayName + ' 内を検索する';
+    // ワークスペース名を取得して表示
+    if (currentWorkspaceId) {
+      getWorkspace(currentWorkspaceId).then(function(ws) {
+        if (!ws) return;
+        const wsNameEl = document.getElementById('workspaceName');
+        if (wsNameEl) wsNameEl.innerHTML = ws.name + ' <span class="ws-dropdown">&#9662;</span>';
+        const searchPh = document.getElementById('searchPlaceholder');
+        if (searchPh) searchPh.textContent = ws.name + ' 内を検索する';
+        const wsLetter = document.querySelector('.ws-letter');
+        if (wsLetter) wsLetter.textContent = ws.name.charAt(0).toUpperCase();
+      });
+    }
   }
 
   // ============ 初期化 ============
   // 未参加チャンネルがあれば自動参加
   async function autoJoinChannels() {
     try {
-      const allChannels = await fetchChannels();
+      const allChannels = await fetchChannels(currentWorkspaceId);
       const myIds = await fetchMyChannelIds();
       for (const ch of allChannels) {
         if (!myIds.includes(ch.id)) {

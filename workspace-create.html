@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ワークスペースを作成</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Noto Sans JP', sans-serif;
+      background: #fff; color: #1d1c1d; min-height: 100vh;
+      display: flex; flex-direction: column; align-items: center;
+    }
+    .header { padding: 48px 0 36px; text-align: center; }
+    .logo {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-size: 28px; font-weight: 700; color: #1d1c1d; text-decoration: none;
+    }
+    .main { width: 100%; max-width: 500px; padding: 0 24px; text-align: center; }
+    .main h1 { font-size: 32px; font-weight: 900; margin-bottom: 10px; }
+    .main .subtitle { font-size: 16px; color: #454245; margin-bottom: 32px; }
+    .form-input {
+      width: 100%; padding: 14px 16px; font-size: 18px;
+      border: 1px solid #babbbf; border-radius: 12px;
+      outline: none; font-family: inherit; color: #1d1c1d;
+    }
+    .form-input:focus { border-color: #4a154b; box-shadow: 0 0 0 4px rgba(74,21,75,0.15); }
+    .form-input::placeholder { color: #8d8d8e; }
+    .submit-btn {
+      width: 100%; padding: 16px; font-size: 18px; font-weight: 700;
+      background: #4a154b; color: #fff; border: none; border-radius: 12px;
+      cursor: pointer; font-family: inherit; margin-top: 16px;
+    }
+    .submit-btn:hover { background: #3b1139; }
+    .submit-btn:disabled { background: #8d8d8e; cursor: not-allowed; }
+    .error { display: none; padding: 12px; background: #fdf2f2; border: 1px solid #e8484e; border-radius: 10px; color: #e8484e; font-size: 14px; margin-bottom: 16px; }
+    .error.show { display: block; }
+    .skip { margin-top: 24px; font-size: 14px; color: #616061; }
+    .skip a { color: #1264a3; text-decoration: none; cursor: pointer; }
+    .skip a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <a class="logo" href="#">
+      <svg width="28" height="28" viewBox="0 0 54 54"><g fill="none"><path d="M19.712.133a5.381 5.381 0 0 0-5.376 5.387 5.381 5.381 0 0 0 5.376 5.386h5.376V5.52A5.381 5.381 0 0 0 19.712.133m0 14.365H5.376A5.381 5.381 0 0 0 0 19.884a5.381 5.381 0 0 0 5.376 5.387h14.336a5.381 5.381 0 0 0 5.376-5.387 5.381 5.381 0 0 0-5.376-5.386" fill="#36C5F0"/><path d="M53.76 19.884a5.381 5.381 0 0 0-5.376-5.386 5.381 5.381 0 0 0-5.376 5.386v5.387h5.376a5.381 5.381 0 0 0 5.376-5.387m-14.336 0V5.52A5.381 5.381 0 0 0 34.048.133a5.381 5.381 0 0 0-5.376 5.387v14.364a5.381 5.381 0 0 0 5.376 5.387 5.381 5.381 0 0 0 5.376-5.387" fill="#2EB67D"/><path d="M34.048 54a5.381 5.381 0 0 0 5.376-5.387 5.381 5.381 0 0 0-5.376-5.386h-5.376v5.386A5.381 5.381 0 0 0 34.048 54m0-14.365h14.336a5.381 5.381 0 0 0 5.376-5.386 5.381 5.381 0 0 0-5.376-5.387H34.048a5.381 5.381 0 0 0-5.376 5.387 5.381 5.381 0 0 0 5.376 5.386" fill="#ECB22E"/><path d="M0 34.249a5.381 5.381 0 0 0 5.376 5.386 5.381 5.381 0 0 0 5.376-5.386v-5.387H5.376A5.381 5.381 0 0 0 0 34.25m14.336-.001v14.364A5.381 5.381 0 0 0 19.712 54a5.381 5.381 0 0 0 5.376-5.387V34.249a5.381 5.381 0 0 0-5.376-5.387 5.381 5.381 0 0 0-5.376 5.387" fill="#E01E5A"/></g></svg>
+      slack
+    </a>
+  </div>
+  <div class="main">
+    <h1>ワークスペースを作成</h1>
+    <p class="subtitle">チームの名前やプロジェクト名を入力してください</p>
+    <div class="error" id="error"></div>
+    <form onsubmit="return false;" id="createForm">
+      <input type="text" class="form-input" id="wsName" placeholder="例: ZETTAI Inc." required>
+      <button type="submit" class="submit-btn" id="createBtn">作成する</button>
+    </form>
+    <div class="skip">
+      <a onclick="handleLogout()">ログアウト</a>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <script src="supabase-config.js"></script>
+  <script>
+    // 未ログインならauth.htmlへ
+    (async () => {
+      const user = await getCurrentUser();
+      if (!user) { window.location.href = 'auth.html'; return; }
+      // 既にワークスペースがあればindex.htmlへ
+      const wsList = await fetchMyWorkspaces();
+      if (wsList.length > 0) {
+        localStorage.setItem('currentWorkspaceId', wsList[0].id);
+        window.location.href = 'index.html';
+        return;
+      }
+    })();
+
+    document.getElementById('createForm').addEventListener('submit', async () => {
+      const name = document.getElementById('wsName').value.trim();
+      if (!name) return;
+      const btn = document.getElementById('createBtn');
+      const err = document.getElementById('error');
+      btn.disabled = true;
+      btn.textContent = '作成中...';
+      err.classList.remove('show');
+
+      const ws = await createWorkspace(name);
+      if (!ws) {
+        err.textContent = 'ワークスペースの作成に失敗しました';
+        err.classList.add('show');
+        btn.disabled = false;
+        btn.textContent = '作成する';
+        return;
+      }
+      localStorage.setItem('currentWorkspaceId', ws.id);
+      window.location.href = 'index.html';
+    });
+
+    async function handleLogout() {
+      await signOut();
+      window.location.href = 'auth.html';
+    }
+  </script>
+</body>
+</html>
