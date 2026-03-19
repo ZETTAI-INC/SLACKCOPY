@@ -315,6 +315,18 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
 
   // ============ 初期化 ============
+  // 未参加チャンネルがあれば自動参加
+  async function autoJoinChannels() {
+    const allChannels = await fetchChannels();
+    const myIds = await fetchMyChannelIds();
+    for (const ch of allChannels) {
+      if (!myIds.includes(ch.id)) {
+        await joinChannel(ch.id);
+      }
+    }
+  }
+  await autoJoinChannels();
+
   updateSendBtn();
   await loadChannels();
 });
