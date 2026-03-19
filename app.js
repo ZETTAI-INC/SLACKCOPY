@@ -42,6 +42,62 @@ document.addEventListener('DOMContentLoaded', async () => {
     updateJoinLeaveBtn();
   }
 
+  // ============ チャンネル作成 ============
+  const addChannelBtn = document.getElementById('addChannelBtn');
+  if (addChannelBtn) {
+    addChannelBtn.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      const name = prompt('チャンネル名を入力してください');
+      if (!name || !name.trim()) return;
+      const ch = await createChannel(name.trim());
+      if (!ch) { alert('チャンネルの作成に失敗しました'); return; }
+      await joinChannel(ch.id);
+      joinedChannelIds.push(ch.id);
+      channels.push(ch);
+      // サイドバーにチャンネルを追加
+      addChannelToSidebar(ch);
+      // 新チャンネルに切り替え
+      currentChannelId = ch.id;
+      currentChannelName = ch.name;
+      const titleEl = document.querySelector('.channel-title');
+      if (titleEl) titleEl.textContent = '# ' + ch.name;
+      const mobileTitle = document.getElementById('mobileChannelTitle');
+      if (mobileTitle) mobileTitle.textContent = '# ' + ch.name;
+      if (messageInput) messageInput.placeholder = '#' + ch.name + ' へのメッセージ';
+      await loadMessages();
+      setupRealtime();
+      updateJoinLeaveBtn();
+    });
+  }
+
+  function addChannelToSidebar(ch) {
+    const section = document.querySelector('.channel-item')?.closest('.sidebar-section');
+    if (!section) return;
+    const btn = document.createElement('button');
+    btn.className = 'sidebar-item channel-item';
+    btn.dataset.channel = ch.name;
+    btn.innerHTML = '<span class="channel-hash">#</span><span>' + ch.name + '</span>';
+    btn.addEventListener('click', async () => {
+      document.querySelector('.channel-item.active')?.classList.remove('active');
+      btn.classList.add('active');
+      currentChannelId = ch.id;
+      currentChannelName = ch.name;
+      const titleEl = document.querySelector('.channel-title');
+      if (titleEl) titleEl.textContent = '# ' + ch.name;
+      const mobileTitle = document.getElementById('mobileChannelTitle');
+      if (mobileTitle) mobileTitle.textContent = '# ' + ch.name;
+      if (messageInput) messageInput.placeholder = '#' + ch.name + ' へのメッセージ';
+      await loadMessages();
+      setupRealtime();
+      updateJoinLeaveBtn();
+      if (typeof closeMobileSidebar === 'function') closeMobileSidebar();
+    });
+    // activeを移す
+    document.querySelector('.channel-item.active')?.classList.remove('active');
+    btn.classList.add('active');
+    section.appendChild(btn);
+  }
+
   // ============ チャンネル参加/退出 ============
   function updateJoinLeaveBtn() {
     const container = document.getElementById('joinLeaveBtnContainer');

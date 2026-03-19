@@ -23,6 +23,13 @@ async function fetchChannels() {
   return data || []
 }
 
+async function createChannel(name) {
+  const sb = getSupabase()
+  const { data, error } = await sb.from('channels').insert({ name: name }).select()
+  if (error) { console.error('createChannel error:', error); return null }
+  return data ? data[0] : null
+}
+
 // ============ チャンネルメンバー ============
 async function joinChannel(channelId) {
   const sb = getSupabase()

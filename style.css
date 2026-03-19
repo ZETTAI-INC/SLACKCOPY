@@ -140,6 +140,13 @@ html, body {
   cursor: pointer; user-select: none;
 }
 .sidebar-section-header:hover { color: var(--text-sidebar-bright); }
+.sidebar-add-btn {
+  margin-left: auto; background: none; border: none; color: var(--text-sidebar-dim);
+  cursor: pointer; padding: 2px; border-radius: 4px; display: flex; align-items: center;
+  opacity: 0; transition: opacity 0.15s;
+}
+.sidebar-section-header:hover .sidebar-add-btn { opacity: 1; }
+.sidebar-add-btn:hover { background: var(--channel-hover); color: var(--text-sidebar-bright); }
 .sidebar-section-icon {
   width: 20px; height: 20px;
   display: flex; align-items: center; justify-content: center;
