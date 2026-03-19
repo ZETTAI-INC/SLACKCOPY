@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>プロフィール - Chat App</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="shared.css">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="app">
+    <main class="main-content">
+      <header class="channel-header">
+        <div class="channel-header-left">
+          <h2 class="channel-title">プロフィール</h2>
+        </div>
+      </header>
+      <div class="messages-container">
+        <div class="profile-panel">
+          <div class="profile-avatar-large" style="background:#f0c040;font-size:60px;">🐤</div>
+          <div class="profile-name">ta ko</div>
+          <div class="profile-title">オーナー</div>
+          <div class="profile-status">
+            <span class="profile-status-dot"></span>
+            アクティブ
+          </div>
+          <div class="profile-actions">
+            <button class="profile-action-btn primary" onclick="location.href='dm.html'">💬 メッセージ</button>
+            <button class="profile-action-btn" onclick="location.href='huddle.html'">🎧 ハドル</button>
+          </div>
+          <div class="profile-info">
+            <div class="profile-info-row">
+              <span class="profile-info-label">表示名</span>
+              <span>ta ko</span>
+            </div>
+            <div class="profile-info-row">
+              <span class="profile-info-label">ステータス</span>
+              <span>アクティブ</span>
+            </div>
+            <div class="profile-info-row">
+              <span class="profile-info-label">タイムゾーン</span>
+              <span>Asia/Tokyo (JST)</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script src="sidebar-template.js"></script>
+  <script>insertSidebar('home');</script>
+</body>
+</html>

@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ファイル - Chat App</title>
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    .files-layout { display: flex; flex: 1; overflow: hidden; }
+
+    /* Left sidebar */
+    .files-sidebar {
+      width: 300px; flex-shrink: 0; display: flex; flex-direction: column;
+      border-right: 1px solid var(--border); background: var(--channel-bg);
+      overflow-y: auto;
+    }
+    .files-sidebar-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 16px;
+    }
+    .files-sidebar-header h2 { font-size: 17px; font-weight: 700; color: #fff; }
+    .files-sidebar-plus {
+      background: none; border: none; color: #bcabbc; font-size: 20px;
+      cursor: pointer; padding: 2px 6px; border-radius: 6px;
+    }
+    .files-sidebar-plus:hover { background: var(--channel-hover); color: #fff; }
+
+    .files-nav-item {
+      display: flex; align-items: center; gap: 8px; width: 100%;
+      padding: 6px 16px; border: none; background: none;
+      color: #bcabbc; font-size: 14px; cursor: pointer; text-align: left;
+      font-family: var(--font);
+    }
+    .files-nav-item:hover { background: var(--channel-hover); color: #fff; }
+    .files-nav-item.active { background: var(--channel-active); color: #fff; border-radius: 6px; margin: 1px 8px; padding: 6px 12px; }
+    .files-nav-item svg { flex-shrink: 0; opacity: 0.7; }
+    .files-nav-item.active svg { opacity: 1; }
+
+    .files-sidebar-section {
+      padding: 12px 16px 4px; font-size: 14px; color: #bcabbc;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .files-sidebar-section-desc {
+      padding: 2px 16px 12px; font-size: 12px; color: rgba(188,171,188,0.5); line-height: 1.5;
+    }
+
+    /* Main area */
+    .files-main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+    .files-panel { flex: 1; display: flex; flex-direction: column; overflow-y: auto; }
+    .files-main-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 20px;
+    }
+    .files-main-header h2 { font-size: 20px; font-weight: 700; color: #e8e8e8; }
+    .files-new-btn {
+      padding: 7px 16px; border: none; border-radius: 8px;
+      background: #007a5a; color: white; font-size: 13px; font-weight: 600;
+      cursor: pointer; font-family: var(--font); display: flex; align-items: center; gap: 4px;
+    }
+    .files-new-btn:hover { background: #006248; }
+
+    .files-search-row { padding: 0 20px 12px; }
+    .files-search {
+      display: flex; align-items: center; gap: 8px;
+      padding: 8px 14px; border: 1px solid #555; border-radius: 8px;
+      background: transparent; width: 100%;
+    }
+    .files-search:focus-within { border-color: #1D9BD1; }
+    .files-search input {
+      flex: 1; background: none; border: none; outline: none;
+      color: #ddd; font-size: 14px; font-family: var(--font);
+    }
+    .files-search input::placeholder { color: #777; }
+
+    /* Template section */
+    .files-template-toggle {
+      display: flex; align-items: center; gap: 6px;
+      padding: 8px 20px; font-size: 14px; color: #ddd; cursor: pointer;
+      font-weight: 600;
+    }
+    .files-template-toggle .pro-badge {
+      padding: 2px 6px; border-radius: 4px; background: #611f69;
+      color: #fff; font-size: 10px; font-weight: 700;
+    }
+
+    .files-template-cards {
+      display: flex; gap: 14px; padding: 10px 20px 20px;
+      overflow-x: auto;
+    }
+    .files-template-cards::-webkit-scrollbar { height: 4px; }
+    .files-template-cards::-webkit-scrollbar-thumb { background: #555; border-radius: 4px; }
+
+    .files-tpl-card {
+      min-width: 220px; max-width: 240px; border-radius: 12px;
+      overflow: hidden; cursor: pointer; flex-shrink: 0;
+      border: 1px solid var(--border); background: #232529;
+    }
+    .files-tpl-card:hover { border-color: #555; }
+    .files-tpl-card-preview {
+      height: 120px; padding: 12px; font-size: 11px; color: #999;
+      line-height: 1.5; overflow: hidden;
+    }
+    .files-tpl-card-preview.yellow { background: #3a3520; }
+    .files-tpl-card-preview.white { background: #2a2d32; }
+    .files-tpl-card-preview.blue { background: #1a2a3a; }
+    .files-tpl-card-preview.purple { background: #2a1a3a; }
+    .files-tpl-card-info {
+      padding: 12px 14px; border-top: 1px solid var(--border);
+    }
+    .files-tpl-card-info strong { font-size: 14px; color: #e0e0e0; display: block; margin-bottom: 2px; }
+    .files-tpl-card-info span { font-size: 12px; color: #888; }
+
+    /* Scrollbar for templates */
+    .files-tpl-scrollbar {
+      margin: 0 20px 8px; height: 4px; background: #333; border-radius: 2px;
+      position: relative;
+    }
+    .files-tpl-scrollbar-thumb {
+      width: 30%; height: 100%; background: #666; border-radius: 2px;
+    }
+
+    /* Filter tabs */
+    .files-filter-row {
+      display: flex; align-items: center; gap: 8px; padding: 8px 20px;
+      flex-wrap: wrap;
+    }
+    .files-filter-tab {
+      padding: 5px 14px; border: 1px solid #555; border-radius: 8px;
+      background: none; color: #ccc; font-size: 13px; cursor: pointer;
+      font-family: var(--font);
+    }
+    .files-filter-tab.active { background: #1D9BD1; border-color: #1D9BD1; color: #fff; font-weight: 600; }
+    .files-filter-tab:hover:not(.active) { background: #2a2d32; }
+
+    .files-filter-right {
+      margin-left: auto; display: flex; align-items: center; gap: 6px;
+    }
+    .files-filter-btn {
+      padding: 5px 12px; border: 1px solid #555; border-radius: 8px;
+      background: none; color: #ccc; font-size: 13px; cursor: pointer;
+      font-family: var(--font); display: flex; align-items: center; gap: 4px;
+    }
+    .files-filter-btn:hover { background: #2a2d32; }
+    .files-filter-icon {
+      background: none; border: none; color: #888; cursor: pointer;
+      padding: 4px; display: flex; align-items: center;
+    }
+
+    /* File list */
+    .files-list { flex: 1; overflow-y: auto; }
+    .files-list-item {
+      display: flex; align-items: center; gap: 12px;
+      padding: 10px 20px; border-bottom: 1px solid var(--border);
+      cursor: pointer;
+    }
+    .files-list-item:hover { background: #222529; }
+    .files-list-icon {
+      width: 36px; height: 36px; border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px; flex-shrink: 0; background: #3a2a50;
+    }
+    .files-list-info { flex: 1; min-width: 0; }
+    .files-list-name {
+      font-size: 15px; font-weight: 600; color: #e0e0e0;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .files-list-name .tpl-badge {
+      padding: 1px 6px; border-radius: 4px; background: #2BAC76;
+      color: #fff; font-size: 10px; font-weight: 700;
+    }
+    .files-list-meta { font-size: 12px; color: #888; margin-top: 2px; }
+    .files-list-actions {
+      display: flex; align-items: center; gap: 4px; flex-shrink: 0;
+    }
+    .files-list-actions button {
+      background: none; border: none; color: #666; cursor: pointer;
+      padding: 4px; border-radius: 4px; font-size: 14px;
+    }
+    .files-list-actions button:hover { background: #2a2d32; color: #aaa; }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="main-wrapper">
+      <!-- Top Bar -->
+      <div class="top-bar">
+        <div class="top-bar-left">
+          <button class="top-bar-arrow">&#8592;</button>
+          <button class="top-bar-arrow">&#8594;</button>
+          <button class="top-bar-arrow"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="8" cy="8" r="6"/><path d="M8 4.5v4l2.5 1.5"/></svg></button>
+        </div>
+        <div class="top-bar-search">
+          <svg width="13" height="13" viewBox="0 0 14 14" fill="none" stroke="rgba(255,255,255,0.5)" stroke-width="1.5"><circle cx="6" cy="6" r="4.5"/><path d="M9.5 9.5l3 3"/></svg>
+          <span>kotaro 内を検索する</span>
+        </div>
+        <div class="top-bar-right">
+          <div class="top-bar-avatar">&#128036;</div>
+          <button class="top-bar-help">?</button>
+        </div>
+      </div>
+
+      <main class="main-content">
+        <div class="files-layout">
+          <!-- Left sidebar -->
+          <div class="files-sidebar">
+            <div class="files-sidebar-header">
+              <h2>ファイル</h2>
+              <button class="files-sidebar-plus">+</button>
+            </div>
+            <button class="files-nav-item active" data-panel="all">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="2" y="2" width="12" height="12" rx="2"/><path d="M2 6h12M6 2v4"/></svg>
+              全ファイル
+            </button>
+            <button class="files-nav-item" data-panel="canvas">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="2" y="2" width="12" height="12" rx="2"/><path d="M5 5h6M5 8h6M5 11h3"/></svg>
+              canvas
+            </button>
+            <button class="files-nav-item" data-panel="list">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="2" y="2" width="12" height="12" rx="2"/><path d="M2 6h12M2 10h12M6 2v12M10 2v12"/></svg>
+              リスト
+            </button>
+
+            <!-- canvas/list sidebar extras (hidden by default) -->
+            <div class="files-sidebar-extra" id="sidebarExtraCanvas" style="display:none;">
+              <div class="files-sidebar-section" style="margin-top:4px;">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="7" cy="7" r="6"/><path d="M7 4v3l2.5 1.5"/></svg>
+                最近チェック済み
+              </div>
+              <button class="files-nav-item" style="padding-left:32px;font-size:13px;">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.2"><rect x="2" y="2" width="10" height="10" rx="1.5"/><path d="M5 5h4M5 7h4"/></svg>
+                無題
+              </button>
+            </div>
+
+            <div class="files-sidebar-section" style="margin-top:8px;">
+              <span>&#9734;</span> スター付き
+            </div>
+            <div class="files-sidebar-section-desc">
+              canvas やリストの &#11088; スターをクリックすると、ここに追加して後でアクセスできます。
+            </div>
+          </div>
+
+          <!-- Main area -->
+          <div class="files-main">
+            <!-- ====== PANEL: 全ファイル ====== -->
+            <div class="files-panel" id="panel-all">
+            <div class="files-main-header">
+              <h2>全ファイル</h2>
+              <button class="files-new-btn">+ New</button>
+            </div>
+
+            <div class="files-search-row">
+              <div class="files-search">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#888" stroke-width="1.5"><circle cx="6" cy="6" r="4.5"/><path d="M9.5 9.5l3 3"/></svg>
+                <input type="text" placeholder="ファイルを検索する">
+              </div>
+            </div>
+
+            <!-- Template section -->
+            <div class="files-template-toggle">
+              <span>&#9660;</span>
+              <span class="pro-badge">PRO</span>
+              <span>テンプレート</span>
+            </div>
+
+            <div class="files-template-cards">
+              <div class="files-tpl-card">
+                <div class="files-tpl-card-preview yellow">
+                  <div style="color:#cca050;">[name]さん、ようこそ！Slack 仲間が増えてうれしいです！</div>
+                  <div style="margin-top:6px;">&#9989; 第 1 週のタスク</div>
+                  <div style="margin-top:4px;font-size:10px;">今週中に、以下のタスクを完了し...</div>
+                </div>
+                <div class="files-tpl-card-info">
+                  <strong>新メンバーのオンボーディング</strong>
+                  <span>新しいメンバーを歓迎します。</span>
+                </div>
+              </div>
+              <div class="files-tpl-card">
+                <div class="files-tpl-card-preview white">
+                  <div style="display:flex;gap:20px;font-size:12px;color:#aaa;margin-bottom:6px;"><span>&#9675; タスク</span><span>担当者</span></div>
+                  <div style="margin-bottom:4px;">&#9675; オフィスの... <span style="float:right;">&#128100;</span></div>
+                  <div>&#9675; 座席表を確認 <span style="float:right;">&#128100;</span></div>
+                </div>
+                <div class="files-tpl-card-info">
+                  <strong>プロジェクトトラッカー</strong>
+                  <span>チームでタスクを管理・監視する</span>
+                </div>
+              </div>
+              <div class="files-tpl-card">
+                <div class="files-tpl-card-preview blue">
+                  <div style="color:#d4a040;">&#128075; Women@ABC コミュニティの皆さんへ</div>
+                  <div style="margin-top:6px;font-size:10px;color:#888;">「Women@ABC」ニュースレターの最新号です。組織内でのうれし...</div>
+                </div>
+                <div class="files-tpl-card-info">
+                  <strong>マンスリーニュースレター</strong>
+                  <span>お知らせを配信します。</span>
+                </div>
+              </div>
+              <div class="files-tpl-card">
+                <div class="files-tpl-card-preview purple">
+                  <div style="color:#bbb;">フィードバック</div>
+                  <div style="margin-top:8px;font-size:11px;color:#888;">ボタンがわかり！</div>
+                  <div style="font-size:11px;color:#888;">色が似すぎ</div>
+                </div>
+                <div class="files-tpl-card-info">
+                  <strong>フィードバックの収集</strong>
+                  <span>一緒に仕事をする人からフィードバックを追跡するた...</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="files-tpl-scrollbar"><div class="files-tpl-scrollbar-thumb"></div></div>
+
+            <!-- Filter tabs -->
+            <div class="files-filter-row">
+              <button class="files-filter-tab active">すべて</button>
+              <button class="files-filter-tab">あなたが作成</button>
+              <button class="files-filter-tab">あなたと共有</button>
+              <div class="files-filter-right">
+                <button class="files-filter-btn">
+                  <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M1 2h10M3 5.5h6M5 9h2"/></svg>
+                  5 タイプ &#9662;
+                </button>
+                <button class="files-filter-btn">最近チェック済み &#9662;</button>
+                <button class="files-filter-icon">
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M2 4h12M2 8h12M2 12h12"/><circle cx="6" cy="4" r="1.5" fill="currentColor"/><circle cx="10" cy="8" r="1.5" fill="currentColor"/><circle cx="6" cy="12" r="1.5" fill="currentColor"/></svg>
+                </button>
+              </div>
+            </div>
+
+            <!-- File list -->
+            <div class="files-list">
+              <div class="files-list-item">
+                <div class="files-list-icon">&#128196;</div>
+                <div class="files-list-info">
+                  <div class="files-list-name">無題</div>
+                  <div class="files-list-meta">ta ko (自分) &#183; 最終閲覧日 : 今日</div>
+                </div>
+                <div class="files-list-actions">
+                  <button>&#9734;</button>
+                  <button>&#8942;</button>
+                </div>
+              </div>
+              <div class="files-list-item">
+                <div class="files-list-icon">&#128196;</div>
+                <div class="files-list-info">
+                  <div class="files-list-name">To-Do リスト <span class="tpl-badge">テンプレート</span></div>
+                  <div class="files-list-meta">Slackbot &#183; 最終閲覧日 : 今日 &#183; 1 分で読むことができます</div>
+                </div>
+                <div class="files-list-actions">
+                  <button>&#9734;</button>
+                  <button>&#8942;</button>
+                </div>
+              </div>
+              <div class="files-list-item">
+                <div class="files-list-icon">&#128196;</div>
+                <div class="files-list-info">
+                  <div class="files-list-name">&#127881;&#128156;&#129488;</div>
+                  <div class="files-list-meta">ta ko (自分) &#183; 最終閲覧日 : 今日 &#183; 1 分で読むことができます</div>
+                </div>
+                <div class="files-list-actions">
+                  <button title="共有先">&#128101;</button>
+                  <button>&#9734;</button>
+                  <button>&#8942;</button>
+                </div>
+              </div>
+            </div>
+            </div><!-- end panel-all -->
+
+            <!-- ====== PANEL: canvas ====== -->
+            <div class="files-panel" id="panel-canvas" style="display:none;">
+              <div class="files-main-header">
+                <h2>canvas</h2>
+                <button class="files-new-btn">+ New</button>
+              </div>
+              <div class="files-search-row">
+                <div class="files-search">
+                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#888" stroke-width="1.5"><circle cx="6" cy="6" r="4.5"/><path d="M9.5 9.5l3 3"/></svg>
+                  <input type="text" placeholder="canvas を検索する">
+                </div>
+              </div>
+
+              <div class="files-template-toggle">
+                <span>&#9660;</span>
+                <span class="pro-badge">PRO</span>
+                <span>テンプレート</span>
+                <a href="#" style="margin-left:auto;font-size:13px;color:#1D9BD1;text-decoration:none;">すべて表示</a>
+              </div>
+              <div class="files-template-cards">
+                <div class="files-tpl-card">
+                  <div class="files-tpl-card-preview yellow">
+                    <div style="color:#cca050;">[name]さん、ようこそ！Slack 仲間が増えてうれしいです！</div>
+                    <div style="margin-top:6px;">&#9989; 第 1 週のタスク</div>
+                    <div style="margin-top:4px;font-size:10px;">今週中に、以下のタスクを完了し...</div>
+                  </div>
+                  <div class="files-tpl-card-info">
+                    <strong>新メンバーのオンボーディ...</strong>
+                    <span>新しいメンバーを歓迎します。</span>
+                  </div>
+                </div>
+                <div class="files-tpl-card">
+                  <div class="files-tpl-card-preview blue">
+                    <div style="color:#d4a040;">&#128075; Women@ABC コミュニティの皆さんへ</div>
+                    <div style="margin-top:6px;font-size:10px;color:#888;">「Women@ABC」ニュースレターの最新号です。組織内でのうれし...</div>
+                  </div>
+                  <div class="files-tpl-card-info">
+                    <strong>マンスリーニュースレター</strong>
+                    <span>お知らせを配信します。</span>
+                  </div>
+                </div>
+                <div class="files-tpl-card">
+                  <div class="files-tpl-card-preview" style="background:#2a2535;">
+                    <div style="color:#e08050;">&#128233; 不在予定の詳細</div>
+                    <div style="margin-top:6px;font-size:11px;color:#888;">オフラインになる期間：ここに期間を追加します</div>
+                    <div style="margin-top:4px;font-size:10px;color:#777;">連絡可否：まったく連絡で...</div>
+                  </div>
+                  <div class="files-tpl-card-info">
+                    <strong>不在時の対応計画</strong>
+                    <span>自分の仕事の対応計画を知らせてください。</span>
+                  </div>
+                </div>
+              </div>
+              <div class="files-tpl-scrollbar"><div class="files-tpl-scrollbar-thumb"></div></div>
+
+              <div class="files-filter-row">
+                <button class="files-filter-tab active">すべての Canvases</button>
+                <button class="files-filter-tab">あなたが作成</button>
+                <button class="files-filter-tab">あなたと共有</button>
+                <div class="files-filter-right">
+                  <button class="files-filter-btn">フィルター</button>
+                  <button class="files-filter-btn">最近チェック済み &#9662;</button>
+                  <button class="files-filter-icon">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M2 4h12M2 8h12M2 12h12"/><circle cx="6" cy="4" r="1.5" fill="currentColor"/><circle cx="10" cy="8" r="1.5" fill="currentColor"/><circle cx="6" cy="12" r="1.5" fill="currentColor"/></svg>
+                  </button>
+                </div>
+              </div>
+              <div class="files-list">
+                <div class="files-list-item">
+                  <div class="files-list-icon">&#128196;</div>
+                  <div class="files-list-info">
+                    <div class="files-list-name">無題</div>
+                    <div class="files-list-meta">ta ko (自分) &#183; 最終閲覧日 : 今日</div>
+                  </div>
+                  <div class="files-list-actions">
+                    <button>&#128101;</button>
+                    <button>&#9734;</button>
+                    <button>&#8942;</button>
+                  </div>
+                </div>
+                <div class="files-list-item">
+                  <div class="files-list-icon">&#128196;</div>
+                  <div class="files-list-info">
+                    <div class="files-list-name">To-Do リスト <span class="tpl-badge">テンプレート</span></div>
+                    <div class="files-list-meta">Slackbot &#183; 最終閲覧日 : 今日 &#183; 1 分で読むことができます</div>
+                  </div>
+                  <div class="files-list-actions">
+                    <button>&#9734;</button>
+                    <button>&#8942;</button>
+                  </div>
+                </div>
+                <div class="files-list-item">
+                  <div class="files-list-icon">&#128196;</div>
+                  <div class="files-list-info">
+                    <div class="files-list-name">&#127881;&#128156;&#129488;</div>
+                    <div class="files-list-meta">ta ko (自分) &#183; 最終閲覧日 : 今日 &#183; 1 分で読むことができます</div>
+                  </div>
+                  <div class="files-list-actions">
+                    <button>&#128101;</button>
+                    <button>&#9734;</button>
+                    <button>&#8942;</button>
+                  </div>
+                </div>
+              </div>
+            </div><!-- end panel-canvas -->
+
+            <!-- ====== PANEL: リスト ====== -->
+            <div class="files-panel" id="panel-list" style="display:none;">
+              <div class="files-main-header">
+                <h2>リスト</h2>
+                <button class="files-new-btn">+ New</button>
+              </div>
+              <div class="files-search-row">
+                <div class="files-search">
+                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#888" stroke-width="1.5"><circle cx="6" cy="6" r="4.5"/><path d="M9.5 9.5l3 3"/></svg>
+                  <input type="text" placeholder="リストを検索する">
+                </div>
+              </div>
+              <div class="files-filter-row">
+                <button class="files-filter-tab active">すべてのリスト</button>
+                <button class="files-filter-tab">あなたが作成</button>
+                <button class="files-filter-tab">あなたと共有</button>
+                <div class="files-filter-right">
+                  <button class="files-filter-btn">最近チェック済み &#9662;</button>
+                </div>
+              </div>
+              <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 20px;text-align:center;">
+                <div style="font-size:18px;font-weight:700;color:#e0e0e0;margin-bottom:8px;">リストはまだありません</div>
+                <div style="font-size:14px;color:#888;">リストを作成すると、ここに表示されます。</div>
+              </div>
+            </div><!-- end panel-list -->
+
+          </div>
+        </div>
+      </main>
+
+      <!-- Bottom Bar -->
+      <div class="bottom-bar">
+        <span>&#128276; 通知を受け取りたい場合には、Slack に許可を与えてください。</span>
+        <a href="#">通知を有効にする</a>
+        <button class="bottom-bar-close">&#10005;</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="sidebar-template.js"></script>
+  <script>
+    var app = document.querySelector('.app');
+    var wrapper = app.querySelector('.main-wrapper');
+    wrapper.insertAdjacentHTML('beforebegin', getIconSidebar('files'));
+
+    document.querySelectorAll('.files-filter-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelector('.files-filter-tab.active').classList.remove('active');
+        tab.classList.add('active');
+      });
+    });
+    document.querySelectorAll('.files-nav-item[data-panel]').forEach(item => {
+      item.addEventListener('click', () => {
+        document.querySelector('.files-nav-item.active')?.classList.remove('active');
+        item.classList.add('active');
+        // Switch panels
+        document.querySelectorAll('.files-panel').forEach(p => p.style.display = 'none');
+        var panelId = 'panel-' + item.dataset.panel;
+        var panel = document.getElementById(panelId);
+        if (panel) panel.style.display = '';
+        // Show/hide sidebar extras
+        var canvasExtra = document.getElementById('sidebarExtraCanvas');
+        if (canvasExtra) canvasExtra.style.display = (item.dataset.panel === 'canvas') ? '' : 'none';
+      });
+    });
+  </script>
+</body>
+</html>

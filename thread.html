@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>スレッド - Chat App</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="shared.css">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="app">
+    <main class="main-content">
+      <header class="channel-header">
+        <div class="channel-header-left">
+          <h2 class="channel-title">スレッド</h2>
+        </div>
+      </header>
+      <div class="messages-container" id="threads">
+        <div class="thread-card">
+          <div class="thread-card-header">
+            <span class="thread-channel"># 新しいチャンネル</span>
+          </div>
+          <div class="message" style="padding:12px 16px;">
+            <div class="message-avatar" style="background:#a0c4a8;">佐</div>
+            <div class="message-body">
+              <div class="message-header">
+                <span class="message-author">佐藤健一</span>
+                <span class="message-time">9:12</span>
+              </div>
+              <div class="message-text">デプロイの件、昨日のPRをマージしました。ステージング環境で確認お願いします。</div>
+            </div>
+          </div>
+          <div class="thread-replies">
+            <div class="thread-reply">
+              <span class="thread-reply-avatar" style="background:#e8a0bf;">田</span>
+              <div class="thread-reply-body">
+                <span class="message-author">田中太郎</span>
+                <span class="message-time">9:20</span>
+                <div class="message-text">確認します。URLはいつものステージングですか？</div>
+              </div>
+            </div>
+            <div class="thread-reply">
+              <span class="thread-reply-avatar" style="background:#a0c4a8;">佐</span>
+              <div class="thread-reply-body">
+                <span class="message-author">佐藤健一</span>
+                <span class="message-time">9:22</span>
+                <div class="message-text">はい、staging.example.comです。</div>
+              </div>
+            </div>
+            <div class="thread-reply">
+              <span class="thread-reply-avatar" style="background:#e8a0bf;">田</span>
+              <div class="thread-reply-body">
+                <span class="message-author">田中太郎</span>
+                <span class="message-time">9:45</span>
+                <div class="message-text">確認しました。LGTMです！🚀</div>
+              </div>
+            </div>
+          </div>
+          <div class="thread-input-wrapper">
+            <input type="text" class="thread-input" placeholder="返信...">
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script src="sidebar-template.js"></script>
+  <script>insertSidebar('home');</script>
+</body>
+</html>

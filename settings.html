@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>管理者設定 - Chat App</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="shared.css">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    .settings-tabs { display: flex; border-bottom: 1px solid var(--border); padding: 0 20px; }
+    .settings-tab { padding: 12px 16px; font-size: 14px; border: none; background: none; cursor: pointer; font-family: var(--font); color: var(--text-secondary); border-bottom: 2px solid transparent; }
+    .settings-tab.active { color: var(--text-main); font-weight: 700; border-bottom-color: #3F0E40; }
+    .settings-tab:hover { color: var(--text-main); }
+    .settings-content { padding: 20px; max-width: 600px; }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <main class="main-content">
+      <header class="channel-header">
+        <div class="channel-header-left">
+          <h2 class="channel-title">環境設定</h2>
+        </div>
+      </header>
+      <div class="settings-tabs">
+        <button class="settings-tab active">通知</button>
+        <button class="settings-tab">テーマ</button>
+        <button class="settings-tab">メッセージ</button>
+        <button class="settings-tab">言語</button>
+        <button class="settings-tab">アクセシビリティ</button>
+      </div>
+      <div class="messages-container">
+        <div class="settings-content">
+          <div class="settings-section">
+            <h3>通知のタイミング</h3>
+            <div class="settings-row">
+              <div>
+                <div class="settings-label">すべてのメッセージ</div>
+                <div class="settings-desc">すべての新しいメッセージで通知を受け取る</div>
+              </div>
+              <button class="toggle-switch" onclick="this.classList.toggle('on')"></button>
+            </div>
+            <div class="settings-row">
+              <div>
+                <div class="settings-label">メンションとDMのみ</div>
+                <div class="settings-desc">@メンションとダイレクトメッセージの場合のみ</div>
+              </div>
+              <button class="toggle-switch on" onclick="this.classList.toggle('on')"></button>
+            </div>
+          </div>
+          <div class="settings-section">
+            <h3>サウンド</h3>
+            <div class="settings-row">
+              <div>
+                <div class="settings-label">メッセージ通知音</div>
+                <div class="settings-desc">新しいメッセージ到着時に音を鳴らす</div>
+              </div>
+              <button class="toggle-switch on" onclick="this.classList.toggle('on')"></button>
+            </div>
+          </div>
+          <div class="settings-section">
+            <h3>表示</h3>
+            <div class="settings-row">
+              <div>
+                <div class="settings-label">コンパクト表示</div>
+                <div class="settings-desc">メッセージの表示を省スペースにする</div>
+              </div>
+              <button class="toggle-switch" onclick="this.classList.toggle('on')"></button>
+            </div>
+            <div class="settings-row">
+              <div>
+                <div class="settings-label">画像のインライン表示</div>
+                <div class="settings-desc">画像をメッセージ内に自動展開する</div>
+              </div>
+              <button class="toggle-switch on" onclick="this.classList.toggle('on')"></button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script src="sidebar-template.js"></script>
+  <script>insertSidebar('settings');</script>
+  <script>
+    document.querySelectorAll('.settings-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelector('.settings-tab.active').classList.remove('active');
+        tab.classList.add('active');
+      });
+    });
+  </script>
+</body>
+</html>

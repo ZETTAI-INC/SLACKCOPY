@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ディレクトリ - Chat App</title>
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    .dir-header { padding: 12px 20px; border-bottom: 1px solid var(--border); }
+    .dir-header h2 { font-size: 17px; font-weight: 700; color: #e8e8e8; margin-bottom: 0; }
+
+    /* Tabs */
+    .dir-tabs {
+      display: flex; align-items: center; gap: 0;
+      padding: 0 20px; border-bottom: 1px solid var(--border);
+    }
+    .dir-tab {
+      display: flex; align-items: center; gap: 6px;
+      padding: 10px 14px; border: none; background: none;
+      font-size: 13px; font-family: var(--font);
+      color: #999; cursor: pointer;
+      border-bottom: 2px solid transparent; margin-bottom: -1px;
+    }
+    .dir-tab:hover { color: #ddd; }
+    .dir-tab.active { color: #fff; font-weight: 700; border-bottom-color: #1D9BD1; }
+    .dir-tab svg { opacity: 0.6; }
+    .dir-tab.active svg { opacity: 1; }
+
+    /* Search + invite row */
+    .dir-search-row {
+      display: flex; align-items: center; gap: 12px;
+      padding: 16px 20px;
+    }
+    .dir-search-input {
+      flex: 1; display: flex; align-items: center; gap: 8px;
+      padding: 8px 14px; border: 1px solid #555; border-radius: 8px;
+      background: transparent; color: #ddd; font-size: 14px;
+      font-family: var(--font);
+    }
+    .dir-search-input:focus-within { border-color: #1D9BD1; }
+    .dir-search-input input {
+      flex: 1; background: none; border: none; outline: none;
+      color: #ddd; font-size: 14px; font-family: var(--font);
+    }
+    .dir-search-input input::placeholder { color: #777; }
+    .dir-search-input svg { flex-shrink: 0; }
+    .dir-invite-btn {
+      padding: 8px 16px; border: 1px solid #555; border-radius: 8px;
+      background: none; color: #ddd; font-size: 13px; cursor: pointer;
+      font-family: var(--font); white-space: nowrap;
+    }
+    .dir-invite-btn:hover { background: #2a2d32; }
+
+    /* Invite banner */
+    .dir-invite-banner {
+      margin: 0 20px; padding: 28px 32px; position: relative;
+      border: 1px solid var(--border); border-radius: 12px;
+      background: #1A1D21;
+    }
+    .dir-invite-close {
+      position: absolute; top: 12px; right: 12px;
+      background: none; border: none; color: #666; font-size: 20px;
+      cursor: pointer; padding: 4px; border-radius: 6px;
+    }
+    .dir-invite-close:hover { background: #2a2d32; color: #aaa; }
+    .dir-invite-banner h3 {
+      font-size: 22px; font-weight: 700; color: #e8e8e8;
+      margin-bottom: 10px;
+    }
+    .dir-invite-banner p {
+      font-size: 15px; color: #999; line-height: 1.6; margin-bottom: 20px;
+      max-width: 600px;
+    }
+    .dir-invite-action {
+      display: inline-block; padding: 8px 18px;
+      border: 1px solid #888; border-radius: 8px;
+      background: none; color: #ddd; font-size: 14px; font-weight: 600;
+      cursor: pointer; font-family: var(--font);
+    }
+    .dir-invite-action:hover { background: #2a2d32; }
+
+    /* Filter row */
+    .dir-filter-row {
+      display: flex; align-items: center; gap: 8px;
+      padding: 12px 20px; border-bottom: 1px solid var(--border);
+    }
+    .dir-filter-btn {
+      display: flex; align-items: center; gap: 4px;
+      padding: 6px 12px; border: 1px solid #555; border-radius: 8px;
+      background: none; color: #ccc; font-size: 13px; cursor: pointer;
+      font-family: var(--font);
+    }
+    .dir-filter-btn:hover { background: #2a2d32; }
+    .dir-filter-btn svg { opacity: 0.5; }
+    .dir-filter-text {
+      display: flex; align-items: center; gap: 4px;
+      color: #1D9BD1; font-size: 13px; cursor: pointer;
+    }
+    .dir-sort-btn {
+      margin-left: auto;
+      display: flex; align-items: center; gap: 4px;
+      padding: 6px 12px; border: 1px solid #555; border-radius: 8px;
+      background: none; color: #ccc; font-size: 13px; cursor: pointer;
+      font-family: var(--font);
+    }
+
+    /* Member card */
+    .dir-members-grid {
+      display: flex; flex-wrap: wrap; gap: 16px;
+      padding: 20px;
+    }
+    .dir-member-card {
+      width: 200px; border: 1px solid var(--border); border-radius: 12px;
+      overflow: hidden; cursor: pointer; background: #232529;
+    }
+    .dir-member-card:hover { border-color: #555; }
+    .dir-member-card-img {
+      width: 100%; height: 130px; object-fit: cover;
+      background: linear-gradient(135deg, #2a3040, #1a2530);
+      position: relative; display: flex; align-items: center; justify-content: center;
+    }
+    .dir-member-card-img .edit-badge {
+      position: absolute; top: 8px; right: 8px;
+      padding: 4px 10px; border-radius: 6px;
+      background: rgba(0,0,0,0.6); color: #ddd; font-size: 12px;
+      display: flex; align-items: center; gap: 4px;
+    }
+    .dir-member-card-img .member-photo {
+      width: 100%; height: 100%; object-fit: cover;
+    }
+    .dir-member-card-info {
+      padding: 12px 14px;
+    }
+    .dir-member-card-name {
+      font-size: 15px; font-weight: 700; color: #e0e0e0;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .dir-member-card-name .online-dot {
+      width: 8px; height: 8px; border-radius: 50%; background: #2BAC76;
+    }
+    .dir-member-card-role {
+      font-size: 13px; color: #888; margin-top: 2px;
+    }
+
+    /* Channel list rows */
+    .dir-channel-list { padding: 0; }
+    .dir-channel-row {
+      display: flex; align-items: flex-start; gap: 12px;
+      padding: 14px 20px; border-bottom: 1px solid var(--border);
+      cursor: pointer;
+    }
+    .dir-channel-row:hover { background: #222529; }
+    .dir-channel-row-left { flex: 1; min-width: 0; }
+    .dir-channel-row-name {
+      font-size: 16px; font-weight: 700; color: #e0e0e0; margin-bottom: 4px;
+    }
+    .dir-channel-row-meta {
+      font-size: 13px; color: #888; display: flex; flex-wrap: wrap;
+      align-items: center; gap: 4px; line-height: 1.5;
+    }
+    .dir-channel-joined {
+      color: #2BAC76; font-weight: 500;
+    }
+    .dir-channel-row-desc {
+      color: #777; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+      max-width: 500px;
+    }
+
+    /* External tab */
+    .ext-icon-btn {
+      background: none; border: none; color: #888; padding: 8px;
+      border-radius: 8px; cursor: pointer; display: flex; align-items: center;
+    }
+    .ext-icon-btn:hover { background: #2a2d32; color: #ddd; }
+    .ext-action-btn {
+      padding: 8px 16px; border: 1px solid #555; border-radius: 8px;
+      background: none; color: #ddd; font-size: 13px; cursor: pointer;
+      font-family: var(--font); white-space: nowrap; display: flex; align-items: center;
+    }
+    .ext-action-btn:hover { background: #2a2d32; }
+
+    .ext-connect-row {
+      display: flex; align-items: center; gap: 12px;
+      margin: 0 20px; padding: 14px 16px;
+      border: 1px solid var(--border); border-radius: 10px;
+    }
+    .ext-connect-row:hover { background: #222529; }
+    .ext-connect-icon {
+      width: 40px; height: 40px; border-radius: 8px; background: #2a2d32;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .ext-connect-text { flex: 1; }
+    .ext-connect-text strong { font-size: 14px; color: #ddd; display: block; margin-bottom: 2px; }
+    .ext-connect-text div { font-size: 13px; color: #888; }
+
+    .ext-hero {
+      display: flex; align-items: center; justify-content: center;
+      gap: 40px; padding: 40px 40px 24px; text-align: left;
+    }
+    .ext-hero-left { max-width: 500px; }
+    .ext-hero-left h3 { font-size: 22px; font-weight: 700; color: #e8e8e8; margin-bottom: 10px; }
+    .ext-hero-left p { font-size: 15px; color: #999; line-height: 1.6; }
+
+    .ext-cards {
+      display: flex; gap: 16px; padding: 0 40px 24px; max-width: 900px; margin: 0 auto;
+    }
+    .ext-card {
+      flex: 1; padding: 20px; border: 1px solid var(--border); border-radius: 12px;
+      background: #232529;
+    }
+    .ext-card strong { font-size: 15px; color: #e0e0e0; display: block; margin-bottom: 6px; }
+    .ext-card-desc { font-size: 13px; color: #888; margin-bottom: 16px; }
+    .ext-card-btn {
+      padding: 8px 18px; border: 1px solid #555; border-radius: 8px;
+      background: none; color: #ddd; font-size: 13px; cursor: pointer;
+      font-family: var(--font);
+    }
+    .ext-card-btn:hover { opacity: 0.85; }
+
+    .ext-section-title {
+      text-align: center; font-size: 13px; color: #888;
+      padding: 24px 20px 12px;
+    }
+
+    .ext-setting-row {
+      display: flex; align-items: center; gap: 14px;
+      margin: 0 40px; padding: 14px 16px;
+      border: 1px solid var(--border); border-radius: 10px;
+      margin-bottom: 8px;
+    }
+    .ext-setting-row:hover { background: #222529; }
+    .ext-setting-icon {
+      width: 40px; height: 40px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .ext-setting-text { flex: 1; }
+    .ext-setting-text strong { font-size: 14px; color: #ddd; display: block; margin-bottom: 2px; }
+    .ext-setting-text div { font-size: 13px; color: #888; }
+
+    .ext-steps-title {
+      text-align: center; font-size: 18px; font-weight: 700; color: #e0e0e0;
+      padding: 32px 20px 20px;
+    }
+    .ext-steps {
+      display: flex; align-items: flex-start; justify-content: center;
+      gap: 0; padding: 0 40px 32px; max-width: 900px; margin: 0 auto;
+    }
+    .ext-step { text-align: center; flex: 1; padding: 0 12px; }
+    .ext-step-num {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: #2BAC76; color: white; font-size: 13px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 10px;
+    }
+    .ext-step-label { font-size: 14px; font-weight: 700; color: #ddd; margin-bottom: 6px; }
+    .ext-step-desc { font-size: 12px; color: #888; line-height: 1.5; }
+    .ext-step-line {
+      width: 80px; height: 0; border-top: 2px dashed #555;
+      margin-top: 14px; flex-shrink: 0;
+    }
+
+    .ext-testimonial {
+      display: flex; align-items: flex-start; gap: 20px;
+      max-width: 700px; margin: 16px auto 24px; padding: 24px 40px;
+      background: #232529; border-radius: 12px;
+    }
+    .ext-testimonial-text p { font-size: 15px; color: #ccc; line-height: 1.6; margin-bottom: 10px; }
+    .ext-testimonial-author { font-size: 13px; color: #aaa; font-weight: 600; }
+    .ext-testimonial-role { font-size: 12px; color: #777; }
+
+    .ext-logos-title {
+      text-align: center; font-size: 16px; font-weight: 700; color: #ddd;
+      padding: 16px 20px 20px;
+    }
+    .ext-logos {
+      display: flex; align-items: center; justify-content: center;
+      gap: 48px; padding: 0 40px 40px;
+    }
+
+    /* Invite tab */
+    .invite-page {
+      display: flex; flex-direction: column; align-items: center;
+      padding: 40px 20px; text-align: center;
+    }
+    .invite-illustration {
+      margin-bottom: 16px;
+    }
+    .invite-illust-box {
+      width: 120px; height: 100px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .invite-page-title {
+      font-size: 20px; font-weight: 700; color: #e8e8e8; margin-bottom: 10px;
+    }
+    .invite-page-desc {
+      font-size: 15px; color: #999; line-height: 1.6; max-width: 400px; margin-bottom: 20px;
+    }
+    .invite-more-btn {
+      padding: 8px 20px; border: 1px solid #666; border-radius: 8px;
+      background: none; color: #ddd; font-size: 14px; font-weight: 600;
+      cursor: pointer; font-family: var(--font); margin-bottom: 16px;
+    }
+    .invite-more-btn:hover { background: #2a2d32; }
+    .invite-connect-link {
+      color: #1D9BD1; font-size: 14px; text-decoration: none; margin-bottom: 24px;
+    }
+    .invite-connect-link:hover { text-decoration: underline; }
+    .invite-divider {
+      width: 120px; height: 1px; background: #444; margin-bottom: 24px;
+    }
+    .invite-steps {
+      max-width: 500px;
+    }
+    .invite-steps p {
+      font-size: 14px; color: #888; line-height: 1.8; margin-bottom: 4px;
+    }
+
+    /* Empty state */
+    .dir-empty-state {
+      display: flex; flex-direction: column; align-items: center;
+      justify-content: center; padding: 60px 20px; text-align: center;
+    }
+    .dir-empty-title {
+      font-size: 18px; font-weight: 700; color: #e0e0e0; margin-bottom: 8px;
+    }
+    .dir-empty-desc {
+      font-size: 14px; color: #888; line-height: 1.5;
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="main-wrapper">
+      <!-- Top Bar -->
+      <div class="top-bar">
+        <div class="top-bar-left">
+          <button class="top-bar-arrow">&#8592;</button>
+          <button class="top-bar-arrow">&#8594;</button>
+          <button class="top-bar-arrow"><svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="8" cy="8" r="6"/><path d="M8 4.5v4l2.5 1.5"/></svg></button>
+        </div>
+        <div class="top-bar-search">
+          <svg width="13" height="13" viewBox="0 0 14 14" fill="none" stroke="rgba(255,255,255,0.5)" stroke-width="1.5"><circle cx="6" cy="6" r="4.5"/><path d="M9.5 9.5l3 3"/></svg>
+          <span>kotaro 内を検索する</span>
+        </div>
+        <div class="top-bar-right">
+          <div class="top-bar-avatar">&#128036;</div>
+          <button class="top-bar-help">?</button>
+        </div>
+      </div>
+
+      <main class="main-content">
+        <!-- Header -->
+        <div class="dir-header">
+          <h2>ディレクトリ</h2>
+        </div>
+
+        <!-- Tabs -->
+        <div class="dir-tabs">
+          <button class="dir-tab active">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="7" cy="5" r="3"/><path d="M2 13c0-3 2.2-5 5-5s5 2 5 5"/></svg>
+            メンバー
+          </button>
+          <button class="dir-tab">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M5 1v12M9 1v12M1 5h12M1 9h12"/></svg>
+            チャンネル
+          </button>
+          <button class="dir-tab">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="5" cy="5" r="3"/><circle cx="10" cy="5" r="3"/><path d="M1 13c0-2.5 1.8-4 4-4 1 0 2 .3 2.5 1M7.5 13c0-2.5 1.8-4 4-4"/></svg>
+            ユーザーグループ
+          </button>
+          <button class="dir-tab">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="2" y="3" width="10" height="8" rx="1.5"/><path d="M5 3V2a2 2 0 014 0v1"/></svg>
+            外部
+          </button>
+          <button class="dir-tab">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M7 1v6l4 2"/><circle cx="7" cy="7" r="6"/></svg>
+            招待
+          </button>
+        </div>
+
+        <!-- ====== TAB: メンバー ====== -->
+        <div class="dir-tab-panel" id="panel-members" style="overflow-y:auto;flex:1;">
+          <div class="dir-search-row">
+            <div class="dir-search-input">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#888" stroke-width="1.5"><circle cx="6" cy="6" r="4.5"/><path d="M9.5 9.5l3 3"/></svg>
+              <input type="text" placeholder="ユーザーを検索する">
+            </div>
+            <button class="dir-invite-btn">メンバーを招待する</button>
+          </div>
+          <div class="dir-invite-banner">
+            <button class="dir-invite-close" onclick="this.parentElement.style.display='none'">&#10005;</button>
+            <h3>チームを Slack に招待しましょう</h3>
+            <p>チームメンバーを Slack に招待してより良いコラボレーションを実現。メールで招待を送信するか、リンクを取得して手軽に共有できます。</p>
+            <button class="dir-invite-action">メンバーを招待</button>
+          </div>
+          <div class="dir-filter-row">
+            <button class="dir-filter-btn">タイトル <svg width="10" height="10" viewBox="0 0 10 10" fill="currentColor"><path d="M2 4l3 3 3-3"/></svg></button>
+            <button class="dir-filter-btn">場所 <svg width="10" height="10" viewBox="0 0 10 10" fill="currentColor"><path d="M2 4l3 3 3-3"/></svg></button>
+            <span class="dir-filter-text"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M1 2h12M3 6h8M5 10h4"/></svg> フィルター</span>
+            <button class="dir-sort-btn">最もおすすめ <svg width="10" height="10" viewBox="0 0 10 10" fill="currentColor"><path d="M2 4l3 3 3-3"/></svg></button>
+          </div>
+          <div class="dir-members-grid">
+            <div class="dir-member-card">
+              <div class="dir-member-card-img">
+                <div class="edit-badge"><svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M7 1l2 2-6 6H1V7L7 1z"/></svg> 編集</div>
+                <div style="width:100%;height:100%;background:linear-gradient(135deg,#2a3545,#1e2a38);display:flex;align-items:flex-end;justify-content:center;padding-bottom:10px;">
+                  <div style="width:60px;height:60px;border-radius:8px;background:#f0c040;display:flex;align-items:center;justify-content:center;font-size:30px;">&#128036;</div>
+                </div>
+              </div>
+              <div class="dir-member-card-info">
+                <div class="dir-member-card-name">ta ko <span class="online-dot"></span></div>
+                <div class="dir-member-card-role">あなたです！</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ====== TAB: チャンネル ====== -->
+        <div class="dir-tab-panel" id="panel-channels" style="overflow-y:auto;flex:1;display:none;">
+          <div class="dir-search-row">
+            <div class="dir-search-input">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#888" stroke-width="1.5"><circle cx="6" cy="6" r="4.5"/><path d="M9.5 9.5l3 3"/></svg>
+              <input type="text" placeholder="チャンネルを検索する">
+            </div>
+            <button class="dir-invite-btn">チャンネルを作成する</button>
+          </div>
+
+          <!-- Channel invite banner -->
+          <div class="dir-invite-banner">
+            <button class="dir-invite-close" onclick="this.parentElement.style.display='none'">&#10005;</button>
+            <h3>チームの会話を整理しましょう</h3>
+            <p>チャンネルは、必要な人、メッセージ、ファイル、ツールのすべてが集まるスペースです。プロジェクト別、グループ別、イニシアティブ別、トピック別など、自分が選んだ方法で整理できます。</p>
+            <button class="dir-invite-action">チャンネルを作成する</button>
+          </div>
+
+          <!-- Channel filter row -->
+          <div class="dir-filter-row">
+            <button class="dir-filter-btn">すべてのチャンネル <svg width="10" height="10" viewBox="0 0 10 10" fill="currentColor"><path d="M2 4l3 3 3-3"/></svg></button>
+            <button class="dir-filter-btn">任意のチャンネルタイプ <svg width="10" height="10" viewBox="0 0 10 10" fill="currentColor"><path d="M2 4l3 3 3-3"/></svg></button>
+            <span class="dir-filter-text"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M1 2h12M3 6h8M5 10h4"/></svg> フィルター</span>
+            <button class="dir-sort-btn">最もおすすめ <svg width="10" height="10" viewBox="0 0 10 10" fill="currentColor"><path d="M2 4l3 3 3-3"/></svg></button>
+          </div>
+
+          <!-- Channel list -->
+          <div class="dir-channel-list">
+            <div class="dir-channel-row" onclick="location.href='index.html'">
+              <div class="dir-channel-row-left">
+                <span class="dir-channel-row-name"># all-kotaro</span>
+                <div class="dir-channel-row-meta">
+                  <span class="dir-channel-joined">&#10003; 参加中</span>
+                  <span>&#183; 1 名のメンバー &#183;</span>
+                  <span class="dir-channel-row-desc">会社のニュース、今後のイベント、称賛に値するチームメンバーについての通知や最新...</span>
+                </div>
+              </div>
+            </div>
+            <div class="dir-channel-row" onclick="location.href='index.html'">
+              <div class="dir-channel-row-left">
+                <span class="dir-channel-row-name"># 新しいチャンネル</span>
+                <div class="dir-channel-row-meta">
+                  <span class="dir-channel-joined">&#10003; 参加中</span>
+                  <span>&#183; 1 名のメンバー &#183;</span>
+                  <span class="dir-channel-row-desc">このチャンネルでは #新しいチャンネル についてどんなことでも話し合えます。ミーテ...</span>
+                </div>
+              </div>
+            </div>
+            <div class="dir-channel-row" onclick="location.href='index.html'">
+              <div class="dir-channel-row-left">
+                <span class="dir-channel-row-name"># ソーシャル</span>
+                <div class="dir-channel-row-meta">
+                  <span class="dir-channel-joined">&#10003; 参加中</span>
+                  <span>&#183; 1 名のメンバー &#183;</span>
+                  <span class="dir-channel-row-desc">その他のチャンネルは仕事用です。このチャンネルでは楽しく過ごしましょう。チーム...</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ====== TAB: ユーザーグループ ====== -->
+        <div class="dir-tab-panel" id="panel-usergroups" style="overflow-y:auto;flex:1;display:none;">
+          <div class="dir-search-row">
+            <div class="dir-search-input">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#888" stroke-width="1.5"><circle cx="6" cy="6" r="4.5"/><path d="M9.5 9.5l3 3"/></svg>
+              <input type="text" placeholder="チーム名、プロジェクト、または部門で検索">
+            </div>
+            <button class="dir-invite-btn">ユーザーグループを作成する</button>
+          </div>
+
+          <div class="dir-invite-banner">
+            <button class="dir-invite-close" onclick="this.parentElement.style.display='none'">&#10005;</button>
+            <h3>ドリームチームを編成する</h3>
+            <p>部門やチームをユーザーグループにまとめておくことで、簡単にまとめてメンションできます。</p>
+            <button class="dir-invite-action">ユーザーグループを作成する</button>
+          </div>
+
+          <div class="dir-filter-row">
+            <button class="dir-filter-btn">ワークスペース <svg width="10" height="10" viewBox="0 0 10 10" fill="currentColor"><path d="M2 4l3 3 3-3"/></svg></button>
+            <button class="dir-filter-btn">解除済みのものを除外する <svg width="10" height="10" viewBox="0 0 10 10" fill="currentColor"><path d="M2 4l3 3 3-3"/></svg></button>
+            <button class="dir-sort-btn">アルファベット順 (昇順) <svg width="10" height="10" viewBox="0 0 10 10" fill="currentColor"><path d="M2 4l3 3 3-3"/></svg></button>
+          </div>
+
+          <div class="dir-empty-state">
+            <div class="dir-empty-title">検索結果がありません</div>
+            <div class="dir-empty-desc">まだユーザーグループが作成されていません</div>
+          </div>
+        </div>
+
+        <!-- ====== TAB: 外部 ====== -->
+        <div class="dir-tab-panel" id="panel-external" style="overflow-y:auto;flex:1;display:none;">
+          <!-- Search + buttons row -->
+          <div class="dir-search-row" style="gap:8px;">
+            <div class="dir-search-input" style="border-color:#1D9BD1;">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#888" stroke-width="1.5"><circle cx="6" cy="6" r="4.5"/><path d="M9.5 9.5l3 3"/></svg>
+              <input type="text" placeholder="メンバーを名前、会社、メールアドレスで検索する">
+            </div>
+            <button class="ext-icon-btn" title="設定">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3"><circle cx="8" cy="8" r="2.5"/><path d="M8 1v1.5m0 11V15M1 8h1.5m11 0H15M3.05 3.05l1.06 1.06m7.78 7.78l1.06 1.06M3.05 12.95l1.06-1.06m7.78-7.78l1.06-1.06"/></svg>
+            </button>
+            <button class="ext-action-btn" style="background:#611f69;border-color:#611f69;color:white;">
+              チャンネルを作成する
+              <span style="display:inline-flex;align-items:center;margin-left:4px;padding:2px 4px;border-radius:4px;background:rgba(255,255,255,0.2);font-size:10px;font-weight:700;">PRO</span>
+            </button>
+            <button class="ext-action-btn">DM を開始する</button>
+          </div>
+
+          <!-- Hero section -->
+          <div class="ext-hero">
+            <div class="ext-hero-left">
+              <h3>Slack で kotaro 外のメンバーと連携する</h3>
+              <p>会話をサイロ化したメールスレッドから移動し、外部の人、クライアント、ベンダー、パートナーと Slack でコラボレーションしましょう。</p>
+            </div>
+            <div class="ext-hero-illustration">
+              <!-- Simple illustration placeholder -->
+              <div style="width:200px;height:180px;display:flex;align-items:center;justify-content:center;">
+                <div style="position:relative;">
+                  <div style="width:80px;height:80px;border-radius:50%;background:#7c5cbf;position:absolute;top:0;left:0;"></div>
+                  <div style="width:80px;height:80px;border-radius:50%;background:#e05080;position:absolute;top:20px;left:50px;"></div>
+                  <div style="width:80px;height:80px;border-radius:50%;background:#40a0d0;position:absolute;top:-10px;left:80px;"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Two action cards -->
+          <div class="ext-cards">
+            <div class="ext-card">
+              <strong>外部の人とのチャンネルを作成する</strong>
+              <div class="ext-card-desc">kotaro 外の複数の人や組織と連携する</div>
+              <button class="ext-card-btn" style="background:#611f69;border-color:#611f69;color:white;">チャンネルを作成する</button>
+            </div>
+            <div class="ext-card">
+              <strong>一対一での会話</strong>
+              <div class="ext-card-desc">kotaro 外の人とも 1 対 1 で会話</div>
+              <button class="ext-card-btn">DM を開始する</button>
+            </div>
+          </div>
+
+          <!-- Secure section title -->
+          <div class="ext-section-title">kotaro に安全でセキュアなコラボレーションを設定する</div>
+
+          <!-- Setting rows -->
+          <div class="ext-setting-row">
+            <div class="ext-setting-icon" style="background:#2a3040;">
+              <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="#888" stroke-width="1.3"><circle cx="9" cy="9" r="2.5"/><path d="M9 1v1.5m0 11V15M1 9h1.5m11 0H15"/></svg>
+            </div>
+            <div class="ext-setting-text">
+              <strong>設定をカスタマイズする</strong>
+              <div>権限と表示オプションを設定してセキュリティを強化します</div>
+            </div>
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#888" stroke-width="1.3" style="flex-shrink:0;cursor:pointer;"><path d="M5 2h6a2 2 0 012 2v6M3 8v4a2 2 0 002 2h4"/><path d="M8 2l5 5"/><path d="M13 2v5h-5"/></svg>
+          </div>
+          <div class="ext-setting-row">
+            <div class="ext-setting-icon" style="background:#2a3040;">
+              <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="#888" stroke-width="1.3"><path d="M3 5l6-3 6 3v5c0 4-6 6-6 6s-6-2-6-6V5z"/></svg>
+            </div>
+            <div class="ext-setting-text">
+              <strong>リクエストを管理する</strong>
+              <div>チームからの連携のリクエストを確認し、承認します</div>
+            </div>
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#888" stroke-width="1.3" style="flex-shrink:0;cursor:pointer;"><path d="M5 2h6a2 2 0 012 2v6M3 8v4a2 2 0 002 2h4"/><path d="M8 2l5 5"/><path d="M13 2v5h-5"/></svg>
+          </div>
+          <div class="ext-setting-row">
+            <div class="ext-setting-icon" style="background:#2a3040;">
+              <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="#888" stroke-width="1.3"><rect x="2" y="2" width="6" height="6" rx="1.5"/><rect x="10" y="2" width="6" height="6" rx="1.5"/><rect x="2" y="10" width="6" height="6" rx="1.5"/><rect x="10" y="10" width="6" height="6" rx="1.5"/></svg>
+            </div>
+            <div class="ext-setting-text">
+              <strong>Slack コネクトのつながりを管理する</strong>
+              <div>信頼できるパートナーを利用して、さらにスムーズな承認を実現します</div>
+            </div>
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#888" stroke-width="1.3" style="flex-shrink:0;cursor:pointer;"><path d="M5 2h6a2 2 0 012 2v6M3 8v4a2 2 0 002 2h4"/><path d="M8 2l5 5"/><path d="M13 2v5h-5"/></svg>
+          </div>
+
+          <!-- Steps section -->
+          <div class="ext-steps-title">外部の人とのチャンネルを作成する方法</div>
+          <div class="ext-steps">
+            <div class="ext-step">
+              <div class="ext-step-num">1</div>
+              <div class="ext-step-label">チャンネルを作成する</div>
+              <div class="ext-step-desc">kotaro 外の人を、メールアドレスを使ってチャンネルに招待できます。</div>
+            </div>
+            <div class="ext-step-line"></div>
+            <div class="ext-step">
+              <div class="ext-step-num">2</div>
+              <div class="ext-step-label">パートナーが招待を承認する</div>
+              <div class="ext-step-desc">相手は、招待を承認すると、共有されたチャンネルを自分のワークスペースにセットアップします。</div>
+            </div>
+            <div class="ext-step-line"></div>
+            <div class="ext-step">
+              <div class="ext-step-num">3</div>
+              <div class="ext-step-label">安全かつ効率的に仕事を進める</div>
+              <div class="ext-step-desc">招待した相手がアクセスできるのは招待された会話だけです。</div>
+            </div>
+          </div>
+
+          <!-- Testimonial -->
+          <div class="ext-testimonial">
+            <div class="ext-testimonial-avatar" style="width:80px;height:80px;border-radius:50%;background:#555;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:36px;">&#128100;</div>
+            <div class="ext-testimonial-text">
+              <p>お客様や見込み客とやり取りする Slack チャンネルを作ったことで、当社がお客様を最優先にしていることをご理解いただき、<strong>他社から際立つ存在になれました。</strong></p>
+              <div class="ext-testimonial-author">Michael Westra 氏</div>
+              <div class="ext-testimonial-role">Corporate Account Executive、Snowflake</div>
+            </div>
+          </div>
+
+          <!-- Logos -->
+          <div class="ext-logos-title">100,000 を超える組織が Slack コネクトを活用しています</div>
+          <div class="ext-logos">
+            <span style="font-weight:700;font-size:20px;color:#ff5a5f;">airbnb</span>
+            <span style="font-weight:700;font-size:18px;color:#ccc;">OpenAI</span>
+            <span style="font-weight:700;font-size:24px;color:#e04040;font-family:serif;">TIME</span>
+            <span style="font-weight:700;font-size:24px;color:#3ddc84;">hulu</span>
+          </div>
+        </div>
+
+        <!-- ====== TAB: 招待 ====== -->
+        <div class="dir-tab-panel" id="panel-invites" style="overflow-y:auto;flex:1;display:none;">
+          <div class="invite-page">
+            <!-- Illustration -->
+            <div class="invite-illustration">
+              <div class="invite-illust-box">
+                <div style="font-size:80px;line-height:1;">&#9993;&#65039;</div>
+              </div>
+            </div>
+
+            <h3 class="invite-page-title">招待を管理する</h3>
+            <p class="invite-page-desc">送信または受信した招待のステータスをここで確認できます。</p>
+
+            <button class="invite-more-btn">もっと詳しく</button>
+
+            <a href="#" class="invite-connect-link">Slack コネクトによる他社との連携を可能にする</a>
+
+            <div class="invite-divider"></div>
+
+            <div class="invite-steps">
+              <p>1. チャンネルに参加するよう、メールやリンクで招待します。</p>
+              <p>2. 会社によっては管理者の承認が必要です。</p>
+              <p>3. 招待された人が参加しました！また、その人も一緒に仕事をする人を追加できます。</p>
+            </div>
+          </div>
+        </div>
+      </main>
+
+      <!-- Bottom Bar -->
+      <div class="bottom-bar">
+        <span>&#128276; 通知を受け取りたい場合には、Slack に許可を与えてください。</span>
+        <a href="#">通知を有効にする</a>
+        <button class="bottom-bar-close">&#10005;</button>
+      </div>
+    </div>
+  </div>
+  <script src="sidebar-template.js"></script>
+  <script>insertSidebar('home');</script>
+  <script>
+    const panels = {
+      0: 'panel-members',
+      1: 'panel-channels',
+      2: 'panel-usergroups',
+      3: 'panel-external',
+      4: 'panel-invites',
+    };
+    document.querySelectorAll('.dir-tab').forEach((tab, i) => {
+      tab.addEventListener('click', () => {
+        document.querySelector('.dir-tab.active').classList.remove('active');
+        tab.classList.add('active');
+        // Hide all panels
+        document.querySelectorAll('.dir-tab-panel').forEach(p => p.style.display = 'none');
+        // Show matching panel
+        const panelId = panels[i];
+        if (panelId) {
+          document.getElementById(panelId).style.display = '';
+        }
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ログイン - Chat App</title>
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    body { background: #f8f8f8; display: flex; align-items: center; justify-content: center; height: 100vh; overflow: auto; }
+    .login-container { background: white; border-radius: 12px; padding: 48px; max-width: 440px; width: 100%; box-shadow: 0 2px 12px rgba(0,0,0,0.08); text-align: center; }
+    .login-logo { font-size: 40px; font-weight: 700; color: #3F0E40; margin-bottom: 8px; }
+    .login-subtitle { color: #616061; font-size: 15px; margin-bottom: 32px; }
+    .login-form { display: flex; flex-direction: column; gap: 16px; }
+    .form-group { text-align: left; }
+    .form-group label { display: block; font-size: 14px; font-weight: 700; margin-bottom: 6px; }
+    .form-input { width: 100%; padding: 10px 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 15px; font-family: var(--font-family); outline: none; }
+    .form-input:focus { border-color: #3F0E40; box-shadow: 0 0 0 3px rgba(63,14,64,0.15); }
+    .login-btn { width: 100%; padding: 12px; background: #3F0E40; color: white; border: none; border-radius: 6px; font-size: 16px; font-weight: 700; cursor: pointer; font-family: var(--font-family); }
+    .login-btn:hover { background: #532653; }
+    .divider { display: flex; align-items: center; gap: 12px; margin: 8px 0; color: #999; font-size: 13px; }
+    .divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: #ddd; }
+    .oauth-btn { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; cursor: pointer; font-family: var(--font-family); background: white; display: flex; align-items: center; justify-content: center; gap: 8px; }
+    .oauth-btn:hover { background: #f8f8f8; }
+    .login-footer { margin-top: 24px; font-size: 13px; color: #616061; }
+    .login-footer a { color: #1264a3; text-decoration: none; }
+    .login-footer a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <div class="login-container">
+    <div class="login-logo">💬 Chat App</div>
+    <p class="login-subtitle">ワークスペースにサインインしてください</p>
+    <form class="login-form" onsubmit="event.preventDefault(); window.location.href='workspace-select.html';">
+      <button type="button" class="oauth-btn" onclick="window.location.href='workspace-select.html'">
+        <span>🔵</span> Googleで続ける
+      </button>
+      <button type="button" class="oauth-btn" onclick="window.location.href='workspace-select.html'">
+        <span>🍎</span> Appleで続ける
+      </button>
+      <div class="divider">または</div>
+      <div class="form-group">
+        <label>メールアドレス</label>
+        <input type="email" class="form-input" placeholder="name@example.com" value="tanaka@example.com">
+      </div>
+      <div class="form-group">
+        <label>パスワード</label>
+        <input type="password" class="form-input" placeholder="パスワード" value="password">
+      </div>
+      <button type="submit" class="login-btn">サインイン</button>
+    </form>
+    <div class="login-footer">
+      <p>アカウントをお持ちでない方は <a href="#">新規登録</a></p>
+      <p style="margin-top:8px;"><a href="#">パスワードを忘れた方</a></p>
+    </div>
+  </div>
+</body>
+</html>

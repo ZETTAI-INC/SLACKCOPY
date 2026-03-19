@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>キャンバス - Chat App</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="shared.css">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="app">
+    <main class="main-content">
+      <header class="channel-header">
+        <div class="channel-header-left">
+          <h2 class="channel-title">キャンバス</h2>
+          <span class="channel-topic">最終更新: ta ko · 10分前</span>
+        </div>
+        <div class="channel-header-right">
+          <button class="header-btn">共有</button>
+        </div>
+      </header>
+      <div class="messages-container">
+        <div class="canvas-editor">
+          <input type="text" class="canvas-title-input" value="メモ" placeholder="タイトルを入力...">
+          <div class="canvas-body" contenteditable="true">
+            <h2>TODO</h2>
+            <ul>
+              <li>チャンネルのセットアップ</li>
+              <li>メンバーの招待</li>
+              <li>アプリの連携</li>
+            </ul>
+            <h2>メモ</h2>
+            <p>ここに自由にメモを書けます。</p>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script src="sidebar-template.js"></script>
+  <script>insertSidebar('home');</script>
+</body>
+</html>

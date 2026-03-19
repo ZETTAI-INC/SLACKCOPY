@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ワークスペースを選択 - Chat App</title>
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    body { background: #f8f8f8; display: flex; align-items: center; justify-content: center; height: 100vh; overflow: auto; }
+    .ws-container { max-width: 500px; width: 100%; text-align: center; }
+    .ws-title { font-size: 28px; font-weight: 700; color: #1d1c1d; margin-bottom: 8px; }
+    .ws-subtitle { color: #616061; margin-bottom: 32px; font-size: 15px; }
+    .ws-list { display: flex; flex-direction: column; gap: 12px; }
+    .ws-card { display: flex; align-items: center; gap: 16px; background: white; padding: 16px 20px; border-radius: 12px; border: 1px solid #e1e1e1; cursor: pointer; text-align: left; text-decoration: none; color: inherit; transition: box-shadow 0.15s; }
+    .ws-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.1); }
+    .ws-card-icon { width: 52px; height: 52px; border-radius: 12px; background: #3F0E40; color: white; display: flex; align-items: center; justify-content: center; font-size: 22px; font-weight: 700; flex-shrink: 0; }
+    .ws-card-icon.blue { background: #1264a3; }
+    .ws-card-icon.green { background: #2bac76; }
+    .ws-card-info h3 { font-size: 16px; font-weight: 700; margin-bottom: 2px; }
+    .ws-card-info p { font-size: 13px; color: #616061; }
+    .ws-card-arrow { margin-left: auto; color: #ccc; font-size: 20px; }
+    .ws-footer { margin-top: 24px; text-align: center; }
+    .ws-footer a { color: #1264a3; text-decoration: none; font-size: 14px; }
+    .ws-footer a:hover { text-decoration: underline; }
+    .ws-create { display: inline-flex; align-items: center; gap: 8px; margin-top: 16px; padding: 12px 24px; border: 2px dashed #ccc; border-radius: 12px; color: #616061; cursor: pointer; font-size: 14px; text-decoration: none; transition: all 0.15s; }
+    .ws-create:hover { border-color: #3F0E40; color: #3F0E40; }
+  </style>
+</head>
+<body>
+  <div class="ws-container">
+    <h1 class="ws-title">ワークスペースを選択</h1>
+    <p class="ws-subtitle">tanaka@example.com でサインイン中</p>
+    <div class="ws-list">
+      <a href="index.html" class="ws-card">
+        <div class="ws-card-icon">M</div>
+        <div class="ws-card-info">
+          <h3>My Workspace</h3>
+          <p>12人のメンバー</p>
+        </div>
+        <span class="ws-card-arrow">›</span>
+      </a>
+      <a href="index.html" class="ws-card">
+        <div class="ws-card-icon blue">D</div>
+        <div class="ws-card-info">
+          <h3>Dev Team</h3>
+          <p>48人のメンバー</p>
+        </div>
+        <span class="ws-card-arrow">›</span>
+      </a>
+      <a href="index.html" class="ws-card">
+        <div class="ws-card-icon green">O</div>
+        <div class="ws-card-info">
+          <h3>OSS Community</h3>
+          <p>256人のメンバー</p>
+        </div>
+        <span class="ws-card-arrow">›</span>
+      </a>
+    </div>
+    <a href="#" class="ws-create">＋ 新しいワークスペースを作成</a>
+    <div class="ws-footer">
+      <a href="login.html">別のアカウントでサインイン</a>
+    </div>
+  </div>
+</body>
+</html>
