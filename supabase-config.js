@@ -175,15 +175,59 @@ async function signOut() {
   await sb.auth.signOut()
 }
 
-async function inviteUserByEmail(email) {
+// ============ 通知 ============
+async function fetchNotifications() {
   const sb = getSupabase()
-  // 仮パスワードで新規ユーザーを作成（招待メールが送られる）
+  const { data, error } = await sb.from('notifications')
+    .select('*')
+    .order('created_at', { ascending: false })
+  if (error) { console.error('fetchNotifications error:', error); return [] }
+  return data || []
+}
+
+async function fetchUnreadCount() {
+  const sb = getSupabase()
+  const { count, error } = await sb.from('notifications')
+    .select('*', { count: 'exact', head: true })
+    .eq('is_read', false)
+  if (error) { console.error('fetchUnreadCount error:', error); return 0 }
+  return count || 0
+}
+
+async function markNotificationsRead() {
+  const sb = getSupabase()
+  const { error } = await sb.from('notifications')
+    .update({ is_read: true })
+    .eq('is_read', false)
+  if (error) console.error('markNotificationsRead error:', error)
+}
+
+async function createNotification(userId, type, message) {
+  const sb = getSupabase()
+  const { error } = await sb.from('notifications').insert({
+    user_id: userId,
+    type: type,
+    message: message,
+  })
+  if (error) console.error('createNotification error:', error)
+}
+
+async function inviteUserByEmail(email, inviterName) {
+  const sb = getSupabase()
   const tempPassword = 'Welcome!' + Math.random().toString(36).slice(2, 10)
   const { data, error } = await sb.auth.signUp({
     email: email,
     password: tempPassword,
   })
   if (error) return { error: error.message }
+  // 招待された人に通知を作成
+  if (data.user) {
+    await createNotification(
+      data.user.id,
+      'invite',
+      (inviterName || 'メンバー') + ' さんがあなたをワークスペースに招待しました。ようこそ！'
+    )
+  }
   return { user: data.user, tempPassword: tempPassword }
 }
 

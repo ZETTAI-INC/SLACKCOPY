@@ -350,6 +350,49 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   });
 
+  // ============ 通知 ============
+  async function loadNotifications() {
+    const count = await fetchUnreadCount();
+    const badge = document.getElementById('notifBadge');
+    if (badge) {
+      if (count > 0) {
+        badge.textContent = count;
+        badge.style.display = '';
+      } else {
+        badge.style.display = 'none';
+      }
+    }
+  }
+
+  window.toggleNotifPanel = async function() {
+    const panel = document.getElementById('notifPanel');
+    if (!panel) return;
+    if (panel.style.display === 'block') {
+      panel.style.display = 'none';
+      return;
+    }
+    const notifications = await fetchNotifications();
+    await markNotificationsRead();
+    const badge = document.getElementById('notifBadge');
+    if (badge) badge.style.display = 'none';
+
+    if (notifications.length === 0) {
+      panel.innerHTML = '<div style="padding:20px;text-align:center;color:#888;font-size:14px;">通知はありません</div>';
+    } else {
+      let html = '';
+      notifications.forEach(n => {
+        const time = new Date(n.created_at).toLocaleString('ja-JP', { month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' });
+        const unread = n.is_read ? '' : ' style="background:#1a2a3a;"';
+        html += '<div class="notif-item"' + unread + '>' +
+          '<div class="notif-icon">' + (n.type === 'invite' ? '&#128233;' : '&#128276;') + '</div>' +
+          '<div class="notif-body"><div class="notif-msg">' + n.message + '</div><div class="notif-time">' + time + '</div></div>' +
+          '</div>';
+      });
+      panel.innerHTML = html;
+    }
+    panel.style.display = 'block';
+  }
+
   // ============ ユーザー情報をUIに反映 ============
   function updateUserUI() {
     if (!currentUser) return;
@@ -389,4 +432,5 @@ document.addEventListener('DOMContentLoaded', async () => {
   updateUserUI();
   updateSendBtn();
   await loadChannels();
+  await loadNotifications();
 });

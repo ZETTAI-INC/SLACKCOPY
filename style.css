@@ -477,6 +477,33 @@ textarea::placeholder { color: #777; }
   cursor: pointer;
 }
 
+/* ============ NOTIFICATION ============ */
+.notif-badge {
+  position: absolute; top: 4px; right: 8px;
+  background: #E01E5A; color: #fff; font-size: 10px; font-weight: 700;
+  min-width: 16px; height: 16px; line-height: 16px;
+  border-radius: 8px; text-align: center; padding: 0 4px;
+}
+.notif-panel {
+  position: fixed; top: 50px; left: 80px; z-index: 250;
+  width: 360px; max-height: 400px; overflow-y: auto;
+  background: #1A1D21; border: 1px solid #444; border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+}
+.notif-item {
+  display: flex; gap: 10px; padding: 12px 16px;
+  border-bottom: 1px solid #2a2d32;
+}
+.notif-item:last-child { border-bottom: none; }
+.notif-icon { font-size: 20px; flex-shrink: 0; padding-top: 2px; }
+.notif-body { flex: 1; min-width: 0; }
+.notif-msg { font-size: 14px; color: #ddd; line-height: 1.4; }
+.notif-time { font-size: 12px; color: #888; margin-top: 4px; }
+
+@media (max-width: 768px) {
+  .notif-panel { left: 8px; right: 8px; width: auto; top: 56px; }
+}
+
 /* ============ INVITE MODAL ============ */
 .invite-overlay {
   position: fixed; inset: 0; z-index: 300;
