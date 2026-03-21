@@ -1,10 +1,10 @@
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
 :root {
-  --sidebar-bg: #19171D;
-  --channel-bg: #1A1D21;
-  --channel-hover: #27242C;
-  --channel-active: #1164A3;
+  --sidebar-bg: #1A0E2E;
+  --channel-bg: #271A3E;
+  --channel-hover: #35255A;
+  --channel-active: #6B3FA0;
   --main-bg: #1A1D21;
   --text-sidebar-dim: #9B9B9B;
   --text-sidebar: #B0B0B0;
@@ -66,14 +66,14 @@ html, body {
   border: none; background: none; font-family: var(--font);
   transition: background 0.1s, color 0.1s;
 }
-.icon-nav-item:hover { background: rgba(255,255,255,0.08); color: #D1D2D3; }
-.icon-nav-item.active { color: var(--text-sidebar-bright); background: rgba(255,255,255,0.08); }
+.icon-nav-item:hover { background: rgba(255,255,255,0.1); color: #D1D2D3; }
+.icon-nav-item.active { color: var(--text-sidebar-bright); background: rgba(255,255,255,0.12); }
 .icon-nav-item svg { flex-shrink: 0; }
 .icon-sidebar-bottom {
   display: flex; flex-direction: column; align-items: center;
   gap: 6px; width: 100%; margin-top: auto;
   padding-top: 12px;
-  border-top: 1px solid #333;
+  border-top: 1px solid rgba(255,255,255,0.1);
 }
 .icon-add-btn {
   width: 36px; height: 36px; border-radius: 50%;
