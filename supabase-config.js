@@ -312,3 +312,53 @@ async function getCurrentUser() {
   const { data: { user } } = await sb.auth.getUser()
   return user
 }
+
+// ============ DM (ダイレクトメッセージ) ============
+async function fetchWorkspaceMembers(workspaceId) {
+  const sb = getSupabase()
+  const { data, error } = await sb
+    .from('workspace_members')
+    .select('user_id, role')
+    .eq('workspace_id', workspaceId)
+  if (error) { console.error('fetchWorkspaceMembers error:', error); return [] }
+  return data || []
+}
+
+async function getOrCreateDMChannel(otherUserId, workspaceId) {
+  const sb = getSupabase()
+  const user = await getCurrentUser()
+  if (!user) return null
+
+  const ids = [user.id, otherUserId].sort()
+  const dmName = 'dm:' + ids[0] + ':' + ids[1]
+
+  const { data: existing } = await sb
+    .from('channels')
+    .select('*')
+    .eq('name', dmName)
+    .eq('workspace_id', workspaceId)
+    .maybeSingle()
+
+  if (existing) return existing
+
+  const { data, error } = await sb
+    .from('channels')
+    .insert({ name: dmName, description: '__DM__', workspace_id: workspaceId })
+    .select()
+    .single()
+
+  if (error) { console.error('getOrCreateDMChannel error:', error); return null }
+  return data
+}
+
+async function fetchLastMessage(channelId) {
+  const sb = getSupabase()
+  const { data, error } = await sb
+    .from('messages')
+    .select('*')
+    .eq('channel_id', channelId)
+    .order('created_at', { ascending: false })
+    .limit(1)
+  if (error) return null
+  return data && data.length > 0 ? data[0] : null
+}

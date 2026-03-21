@@ -220,7 +220,7 @@
 
       try {
         const result = await signInWithEmail(email, password);
-        if (result.error) { showError(result.error); btn.disabled = false; return; }
+        if (result.error) { showError('メールアドレスまたはパスワードが間違っています'); btn.disabled = false; return; }
         window.location.href = 'index.html';
       } catch (e) {
         showError('エラーが発生しました: ' + e.message);

@@ -7,7 +7,7 @@
   <link rel="stylesheet" href="style.css">
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
   <style>
-    /* DM sidebar (replaces channel sidebar) */
+    /* DM sidebar */
     .dm-sidebar {
       width: 340px; background: var(--channel-bg); color: var(--text-sidebar);
       display: flex; flex-direction: column; flex-shrink: 0; overflow: hidden;
@@ -25,11 +25,6 @@
       padding: 4px 6px; border-radius: 6px; display: flex; align-items: center; opacity: 0.7;
     }
     .dm-sidebar-header-btn:hover { background: var(--channel-hover); opacity: 1; }
-    .dm-unread-toggle {
-      font-size: 12px; color: #999; background: none; border: none; cursor: pointer;
-      padding: 2px 8px; border-radius: 10px; font-family: var(--font);
-    }
-    .dm-unread-toggle:hover { color: #ddd; }
 
     .dm-search {
       margin: 8px 12px; padding: 6px 10px; border-radius: 6px;
@@ -43,16 +38,16 @@
 
     .dm-list { flex: 1; overflow-y: auto; padding: 4px 0; }
     .dm-list-item {
-      display: flex; align-items: flex-start; gap: 10px;
-      padding: 8px 14px; cursor: pointer; border: none; background: none;
+      display: flex; align-items: center; gap: 10px;
+      padding: 6px 14px; cursor: pointer; border: none; background: none;
       width: 100%; text-align: left; font-family: var(--font);
     }
     .dm-list-item:hover { background: var(--channel-hover); }
     .dm-list-item.active { background: var(--channel-active); }
     .dm-list-item-avatar {
       width: 36px; height: 36px; border-radius: 8px; flex-shrink: 0;
-      display: flex; align-items: center; justify-content: center; font-size: 18px;
-      position: relative;
+      display: flex; align-items: center; justify-content: center; font-size: 16px;
+      color: #fff; font-weight: 700; position: relative;
     }
     .dm-list-item-avatar .status-ring {
       position: absolute; bottom: -2px; right: -2px;
@@ -60,24 +55,11 @@
       background: #2BAC76;
     }
     .dm-list-item-info { flex: 1; min-width: 0; }
-    .dm-list-item-name { font-size: 14px; font-weight: 600; color: #ddd; margin-bottom: 2px; }
+    .dm-list-item-name { font-size: 14px; font-weight: 600; color: #ddd; }
     .dm-list-item-preview {
       font-size: 12px; color: #999; overflow: hidden; text-overflow: ellipsis;
       white-space: nowrap; line-height: 1.4;
     }
-    .dm-invite-banner {
-      margin: 8px 12px; padding: 10px 12px; border-radius: 8px;
-      display: flex; align-items: flex-start; gap: 10px;
-    }
-    .dm-invite-banner-icon { font-size: 28px; flex-shrink: 0; }
-    .dm-invite-banner-text { font-size: 13px; color: #bcabbc; line-height: 1.5; }
-    .dm-invite-banner-btn {
-      display: inline-block; margin-top: 8px; padding: 6px 14px;
-      border: 1px solid rgba(188,171,188,0.3); border-radius: 6px;
-      background: none; color: #ddd; font-size: 13px; cursor: pointer;
-      font-family: var(--font);
-    }
-    .dm-invite-banner-btn:hover { background: var(--channel-hover); }
 
     /* Main chat area */
     .dm-main-header {
@@ -87,8 +69,9 @@
     .dm-main-header-left { display: flex; align-items: center; gap: 8px; }
     .dm-main-header-left .star { font-size: 18px; color: #666; cursor: pointer; }
     .dm-main-header-left .dm-avatar-header {
-      width: 24px; height: 24px; border-radius: 6px; font-size: 14px;
-      display: flex; align-items: center; justify-content: center;
+      width: 24px; height: 24px; border-radius: 6px; font-size: 13px;
+      display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 700;
+      position: relative;
     }
     .dm-main-header-left .dm-name-header { font-size: 16px; font-weight: 700; color: #e8e8e8; }
     .dm-main-header-right { display: flex; gap: 6px; }
@@ -111,9 +94,8 @@
     }
     .dm-welcome-photo {
       width: 140px; height: 110px; border-radius: 10px; object-fit: cover;
-      background: linear-gradient(135deg, #2a3545 0%, #1e2a38 50%, #2a3040 100%);
       display: flex; align-items: center; justify-content: center;
-      font-size: 50px; margin-bottom: 12px;
+      font-size: 50px; margin-bottom: 12px; color: #fff; font-weight: 700;
       border: 1px solid #383838;
     }
     .dm-welcome-name {
@@ -134,19 +116,15 @@
     .dm-welcome-edit-btn:hover { background: #2a2d32; }
   </style>
 </head>
-<body>
+<body style="visibility:hidden;">
   <div class="app">
     <!-- Icon sidebar inserted by JS -->
 
-    <!-- DM Sidebar (custom, not channel sidebar) -->
+    <!-- DM Sidebar -->
     <aside class="dm-sidebar">
       <div class="dm-sidebar-header">
         <span class="dm-sidebar-title">ダイレクトメッセージ <span class="dm-sidebar-title-dropdown">&#9662;</span></span>
-        <span class="dm-unread-toggle">未読メッセ...</span>
         <div class="dm-sidebar-header-right">
-          <button class="dm-sidebar-header-btn" title="トグル">
-            <svg width="18" height="10" viewBox="0 0 18 10" fill="none"><rect width="18" height="10" rx="5" fill="#555"/><circle cx="7" cy="5" r="4" fill="#999"/></svg>
-          </button>
           <button class="dm-sidebar-header-btn" title="新規メッセージ">
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M11 1l4 4-9 9H2v-4L11 1z"/></svg>
           </button>
@@ -155,31 +133,11 @@
 
       <div class="dm-search">
         <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#9b8e9b" stroke-width="1.5"><circle cx="6" cy="6" r="4.5"/><path d="M9.5 9.5l3 3"/></svg>
-        <input type="text" placeholder="DM を見つける">
+        <input type="text" id="dmSearchInput" placeholder="DM を見つける">
       </div>
 
-      <div class="dm-list">
-        <!-- Invite banner -->
-        <div class="dm-invite-banner">
-          <div class="dm-invite-banner-icon">&#128036;</div>
-          <div>
-            <div class="dm-invite-banner-text">みんながここに集まれば、Slack はもっと便利になります。チームのメンバーを追加して、会話を始めましょう。</div>
-            <button class="dm-invite-banner-btn">一緒に仕事をする人を追加する</button>
-          </div>
-        </div>
-
-        <!-- DM item: ユーザー (self) -->
-        <button class="dm-list-item active">
-          <div style="position:relative;width:40px;height:40px;flex-shrink:0;">
-            <div style="width:32px;height:32px;border-radius:8px;background:#f0c040;display:flex;align-items:center;justify-content:center;font-size:16px;position:absolute;top:0;left:0;">&#128036;</div>
-            <div style="width:20px;height:20px;border-radius:5px;background:#f0c040;display:flex;align-items:center;justify-content:center;font-size:10px;position:absolute;bottom:0;right:0;border:2px solid var(--channel-bg);">&#128036;</div>
-            <span class="status-ring" style="position:absolute;bottom:-1px;right:-1px;"></span>
-          </div>
-          <div class="dm-list-item-info">
-            <div class="dm-list-item-name">ユーザー（自分）</div>
-            <div class="dm-list-item-preview">ここは、あなたのスペースです。メッセージの下書きや、To-do リストの作成、リンクやファイルの保管などに使うと便利です。</div>
-          </div>
-        </button>
+      <div class="dm-list" id="dmList">
+        <!-- Dynamically populated by dm-app.js -->
       </div>
     </aside>
 
@@ -194,10 +152,10 @@
         </div>
         <div class="top-bar-search">
           <svg width="13" height="13" viewBox="0 0 14 14" fill="none" stroke="rgba(255,255,255,0.5)" stroke-width="1.5"><circle cx="6" cy="6" r="4.5"/><path d="M9.5 9.5l3 3"/></svg>
-          <span>Workspace 内を検索する</span>
+          <span id="searchPlaceholder">Workspace 内を検索する</span>
         </div>
         <div class="top-bar-right">
-          <div class="top-bar-avatar">&#128036;</div>
+          <div class="top-bar-avatar" id="topBarAvatar">U</div>
           <button class="top-bar-help">?</button>
         </div>
       </div>
@@ -207,21 +165,21 @@
         <div class="dm-main-header">
           <div class="dm-main-header-left">
             <span class="star">&#9734;</span>
-            <div class="dm-avatar-header" style="background:#f0c040;position:relative;">
-              &#128036;
+            <div class="dm-avatar-header" id="dmHeaderAvatar" style="background:#7eb8da;position:relative;">
+              U
               <span style="position:absolute;bottom:-1px;right:-1px;width:8px;height:8px;border-radius:50%;background:#2BAC76;border:2px solid #1A1D21;"></span>
             </div>
-            <span class="dm-name-header">ユーザー</span>
+            <span class="dm-name-header" id="dmHeaderName">ユーザー</span>
           </div>
           <div class="dm-main-header-right">
-            <button class="header-icon-btn" onclick="location.href='search.html'">
+            <button class="header-icon-btn" title="通知">
+              <svg width="18" height="18" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 7A4 4 0 006 7v4l-2 2h12l-2-2V7z"/><path d="M8.5 15a1.5 1.5 0 003 0"/></svg>
+            </button>
+            <button class="header-icon-btn" onclick="location.href='search.html'" title="検索">
               <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="7.5" cy="7.5" r="5"/><path d="M11.5 11.5l4 4"/></svg>
             </button>
             <button class="header-icon-btn">
               <svg width="18" height="18" viewBox="0 0 18 18" fill="currentColor"><circle cx="4" cy="9" r="1.3"/><circle cx="9" cy="9" r="1.3"/><circle cx="14" cy="9" r="1.3"/></svg>
-            </button>
-            <button class="header-icon-btn" onclick="location.href='index.html'" title="閉じる">
-              <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M5 5l8 8M13 5l-8 8"/></svg>
             </button>
           </div>
         </div>
@@ -234,52 +192,54 @@
           </button>
           <button class="dm-tab">
             <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.2"><rect x="2" y="2" width="10" height="10" rx="1.5"/><path d="M5 5h4M5 7h4M5 9h2"/></svg>
-            無題
+            canvas を追加する
           </button>
           <button class="dm-tab" style="font-size:16px;padding:8px 10px;">+</button>
         </div>
 
         <!-- DM Content -->
-        <div class="messages-container" style="flex:1;overflow-y:auto;padding:0 20px;">
-          <div class="dm-welcome">
-            <div class="dm-welcome-photo">&#128036;</div>
-            <div class="dm-welcome-name">ユーザー (自分) <span class="online-dot"></span></div>
-            <p class="dm-welcome-desc">
-              <strong style="color:#e0e0e0;">ここはあなただけのスペースです。</strong> メッセージの下書きや、To-doリストの作成、リンクやファイルの保管などに使うと便利です。もちろん自分に対してメッセージを送ることも可能。 でも自動返信機能はついてないので、そこはセルフサービスでお願いします！
+        <div id="dmMessagesContainer" style="flex:1;overflow-y:auto;padding:0 20px;display:flex;flex-direction:column;">
+          <div class="dm-welcome" id="dmWelcomeSection">
+            <div class="dm-welcome-photo" id="dmWelcomeAvatar" style="background:linear-gradient(135deg, #7eb8da 0%, #7eb8da88 100%);">U</div>
+            <div class="dm-welcome-name" id="dmWelcomeName">ユーザー <span class="online-dot"></span></div>
+            <p class="dm-welcome-desc" id="dmWelcomeDesc">
+              <strong style="color:#e0e0e0;">ここはあなただけのスペースです。</strong> メッセージの下書きや、To-doリストの作成、リンクやファイルの保管などに使うと便利です。
             </p>
-            <button class="dm-welcome-edit-btn">プロフィールを編集する</button>
+            <button class="dm-welcome-edit-btn" id="dmWelcomeBtn">プロフィールを表示する</button>
           </div>
         </div>
 
         <!-- Message Input -->
         <div class="message-input-container">
           <div class="message-toolbar">
-            <button class="toolbar-btn"><strong>B</strong></button>
-            <button class="toolbar-btn"><em>I</em></button>
+            <button class="toolbar-btn" onclick="insertFormatting(document.getElementById('dmMessageInput'), 'bold')"><strong>B</strong></button>
+            <button class="toolbar-btn" onclick="insertFormatting(document.getElementById('dmMessageInput'), 'italic')"><em>I</em></button>
             <button class="toolbar-btn" style="text-decoration:underline;">U</button>
-            <button class="toolbar-btn"><s>S</s></button>
+            <button class="toolbar-btn" onclick="insertFormatting(document.getElementById('dmMessageInput'), 'strikethrough')"><s>S</s></button>
             <div class="toolbar-sep"></div>
-            <button class="toolbar-btn"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M6 8l2-2a2.5 2.5 0 013.5 3.5l-2 2"/><path d="M8 6l-2 2a2.5 2.5 0 01-3.5-3.5l2-2"/></svg></button>
+            <button class="toolbar-btn" onclick="insertFormatting(document.getElementById('dmMessageInput'), 'link')"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M6 8l2-2a2.5 2.5 0 013.5 3.5l-2 2"/><path d="M8 6l-2 2a2.5 2.5 0 01-3.5-3.5l2-2"/></svg></button>
             <div class="toolbar-sep"></div>
-            <button class="toolbar-btn"><svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor"><rect x="0" y="1.5" width="1.5" height="1.5" rx="0.3"/><rect x="3.5" y="1.5" width="10.5" height="1.2"/><rect x="0" y="6" width="1.5" height="1.5" rx="0.3"/><rect x="3.5" y="6" width="10.5" height="1.2"/><rect x="0" y="10.5" width="1.5" height="1.5" rx="0.3"/><rect x="3.5" y="10.5" width="10.5" height="1.2"/></svg></button>
-            <button class="toolbar-btn"><svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor"><text x="0" y="3" font-size="4" font-weight="700">1.</text><rect x="3.5" y="1.5" width="10.5" height="1.2"/><text x="0" y="7.5" font-size="4" font-weight="700">2.</text><rect x="3.5" y="6" width="10.5" height="1.2"/><text x="0" y="12" font-size="4" font-weight="700">3.</text><rect x="3.5" y="10.5" width="10.5" height="1.2"/></svg></button>
+            <button class="toolbar-btn" onclick="insertFormatting(document.getElementById('dmMessageInput'), 'bullet')"><svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor"><rect x="0" y="1.5" width="1.5" height="1.5" rx="0.3"/><rect x="3.5" y="1.5" width="10.5" height="1.2"/><rect x="0" y="6" width="1.5" height="1.5" rx="0.3"/><rect x="3.5" y="6" width="10.5" height="1.2"/><rect x="0" y="10.5" width="1.5" height="1.5" rx="0.3"/><rect x="3.5" y="10.5" width="10.5" height="1.2"/></svg></button>
+            <button class="toolbar-btn" onclick="insertFormatting(document.getElementById('dmMessageInput'), 'numbered')"><svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor"><text x="0" y="3" font-size="4" font-weight="700">1.</text><rect x="3.5" y="1.5" width="10.5" height="1.2"/><text x="0" y="7.5" font-size="4" font-weight="700">2.</text><rect x="3.5" y="6" width="10.5" height="1.2"/><text x="0" y="12" font-size="4" font-weight="700">3.</text><rect x="3.5" y="10.5" width="10.5" height="1.2"/></svg></button>
             <div class="toolbar-sep"></div>
-            <button class="toolbar-btn">&lt;/&gt;</button>
-            <button class="toolbar-btn"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M4 1v12"/><path d="M4 4h8v6H4"/></svg></button>
+            <button class="toolbar-btn" onclick="insertFormatting(document.getElementById('dmMessageInput'), 'blockquote')"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M4 1v12"/><path d="M4 4h8v6H4"/></svg></button>
+            <button class="toolbar-btn" onclick="insertFormatting(document.getElementById('dmMessageInput'), 'code')">&lt;/&gt;</button>
           </div>
           <div class="input-wrapper">
-            <textarea placeholder="ユーザー へのメッセージ" rows="1"></textarea>
+            <textarea id="dmMessageInput" placeholder="メッセージ" rows="1"></textarea>
           </div>
           <div class="input-actions">
             <div class="input-actions-left">
               <button class="action-btn"><svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="10" cy="10" r="8"/><path d="M6 10h8M10 6v8"/></svg></button>
               <button class="action-btn action-btn-text">Aa</button>
-              <button class="action-btn">😀</button>
+              <button class="action-btn">&#128512;</button>
               <button class="action-btn" style="font-size:16px;font-weight:600;">@</button>
-              <button class="action-btn" style="font-size:14px;letter-spacing:2px;">&#8943;</button>
+              <button class="action-btn"><svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="1" y="4" width="16" height="10" rx="2"/><polygon points="7,7 7,13 13,10" fill="currentColor" stroke="none" opacity="0.5"/></svg></button>
+              <button class="action-btn"><svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M9 3a5 5 0 015 5v1a5 5 0 01-10 0V8a5 5 0 015-5z"/><path d="M9 13v3M6 16h6"/></svg></button>
+              <button class="action-btn"><svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.3"><rect x="3" y="2" width="12" height="14" rx="2"/><path d="M6 6h6M6 9h6M6 12h3"/></svg></button>
             </div>
             <div class="input-actions-right">
-              <button class="send-btn" id="sendBtn" disabled style="background:#2BAC76;">
+              <button class="send-btn" id="dmSendBtn" disabled style="background:#2BAC76;">
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M1.5 1.3l13 6.7-13 6.7V9.3l7.5-1.3-7.5-1.3V1.3z"/></svg>
               </button>
               <button class="send-dropdown">&#9662;</button>
@@ -312,5 +272,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <script src="supabase-config.js"></script>
   <script src="auth-guard.js"></script>
+  <script src="message-format.js"></script>
+  <script src="dm-app.js"></script>
 </body>
 </html>

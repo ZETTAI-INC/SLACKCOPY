@@ -84,7 +84,9 @@
         </div>
         <div class="sidebar-section">
           <div class="sidebar-section-header"><span class="sidebar-section-icon"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M3 3h10a1 1 0 011 1v6a1 1 0 01-1 1H6l-3 3V4a1 1 0 011-1z"/></svg></span><span>ダイレクトメッセージ</span></div>
-          <button class="sidebar-item dm-item" onclick="location.href='dm.html'"><span class="dm-avatar-small"><span class="dm-avatar-img" id="sidebarUserAvatar">&#128036;</span><span class="dm-status-dot online"></span></span><span id="sidebarUserName">...</span><span class="dm-self-label">(自分)</span></button>
+          <div id="dmSidebarList">
+            <button class="sidebar-item dm-item" onclick="location.href='dm.html'"><span class="dm-avatar-small"><span class="dm-avatar-img" id="sidebarUserAvatar">&#128036;</span><span class="dm-status-dot online"></span></span><span id="sidebarUserName">...</span><span class="dm-self-label">(自分)</span></button>
+          </div>
         </div>
         <div class="sidebar-section">
           <div class="sidebar-section-header"><span class="sidebar-section-icon"><svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" opacity="0.7"><circle cx="3.5" cy="3.5" r="1.3"/><circle cx="8" cy="3.5" r="1.3"/><circle cx="12.5" cy="3.5" r="1.3"/><circle cx="3.5" cy="8" r="1.3"/><circle cx="8" cy="8" r="1.3"/><circle cx="12.5" cy="8" r="1.3"/><circle cx="3.5" cy="12.5" r="1.3"/><circle cx="8" cy="12.5" r="1.3"/><circle cx="12.5" cy="12.5" r="1.3"/></svg></span><span>App</span></div>
@@ -224,18 +226,18 @@
         <!-- Message Input -->
         <div class="message-input-container">
           <div class="message-toolbar">
-            <button class="toolbar-btn"><strong>B</strong></button>
-            <button class="toolbar-btn"><em>I</em></button>
+            <button class="toolbar-btn" onclick="insertFormatting(document.getElementById('messageInput'), 'bold')"><strong>B</strong></button>
+            <button class="toolbar-btn" onclick="insertFormatting(document.getElementById('messageInput'), 'italic')"><em>I</em></button>
             <button class="toolbar-btn" style="text-decoration:underline;">U</button>
-            <button class="toolbar-btn"><s>S</s></button>
+            <button class="toolbar-btn" onclick="insertFormatting(document.getElementById('messageInput'), 'strikethrough')"><s>S</s></button>
             <div class="toolbar-sep"></div>
-            <button class="toolbar-btn"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M6 8l2-2a2.5 2.5 0 013.5 3.5l-2 2"/><path d="M8 6l-2 2a2.5 2.5 0 01-3.5-3.5l2-2"/></svg></button>
+            <button class="toolbar-btn" onclick="insertFormatting(document.getElementById('messageInput'), 'link')"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M6 8l2-2a2.5 2.5 0 013.5 3.5l-2 2"/><path d="M8 6l-2 2a2.5 2.5 0 01-3.5-3.5l2-2"/></svg></button>
             <div class="toolbar-sep"></div>
-            <button class="toolbar-btn"><svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor"><rect x="0" y="1.5" width="1.5" height="1.5" rx="0.3"/><rect x="3.5" y="1.5" width="10.5" height="1.2"/><rect x="0" y="6" width="1.5" height="1.5" rx="0.3"/><rect x="3.5" y="6" width="10.5" height="1.2"/><rect x="0" y="10.5" width="1.5" height="1.5" rx="0.3"/><rect x="3.5" y="10.5" width="10.5" height="1.2"/></svg></button>
-            <button class="toolbar-btn"><svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor"><text x="0" y="3" font-size="4" font-weight="700">1.</text><rect x="3.5" y="1.5" width="10.5" height="1.2"/><text x="0" y="7.5" font-size="4" font-weight="700">2.</text><rect x="3.5" y="6" width="10.5" height="1.2"/><text x="0" y="12" font-size="4" font-weight="700">3.</text><rect x="3.5" y="10.5" width="10.5" height="1.2"/></svg></button>
+            <button class="toolbar-btn" onclick="insertFormatting(document.getElementById('messageInput'), 'bullet')"><svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor"><rect x="0" y="1.5" width="1.5" height="1.5" rx="0.3"/><rect x="3.5" y="1.5" width="10.5" height="1.2"/><rect x="0" y="6" width="1.5" height="1.5" rx="0.3"/><rect x="3.5" y="6" width="10.5" height="1.2"/><rect x="0" y="10.5" width="1.5" height="1.5" rx="0.3"/><rect x="3.5" y="10.5" width="10.5" height="1.2"/></svg></button>
+            <button class="toolbar-btn" onclick="insertFormatting(document.getElementById('messageInput'), 'numbered')"><svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor"><text x="0" y="3" font-size="4" font-weight="700">1.</text><rect x="3.5" y="1.5" width="10.5" height="1.2"/><text x="0" y="7.5" font-size="4" font-weight="700">2.</text><rect x="3.5" y="6" width="10.5" height="1.2"/><text x="0" y="12" font-size="4" font-weight="700">3.</text><rect x="3.5" y="10.5" width="10.5" height="1.2"/></svg></button>
             <div class="toolbar-sep"></div>
-            <button class="toolbar-btn"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M4 1v12"/><path d="M4 4h8v6H4"/></svg></button>
-            <button class="toolbar-btn">&lt;/&gt;</button>
+            <button class="toolbar-btn" onclick="insertFormatting(document.getElementById('messageInput'), 'blockquote')"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M4 1v12"/><path d="M4 4h8v6H4"/></svg></button>
+            <button class="toolbar-btn" onclick="insertFormatting(document.getElementById('messageInput'), 'code')">&lt;/&gt;</button>
           </div>
           <div class="input-wrapper">
             <textarea id="messageInput" placeholder="#新しいチャンネル へのメッセージ" rows="1"></textarea>
@@ -408,6 +410,7 @@
       });
     });
   </script>
+  <script src="message-format.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

@@ -221,18 +221,14 @@ document.addEventListener('DOMContentLoaded', async () => {
           '<span class="message-author">' + escapeHtml(name) + '</span>' +
           '<span class="message-time">' + time + '</span>' +
         '</div>' +
-        '<div class="message-text">' + escapeHtml(msg.content) + '</div>' +
+        '<div class="message-text">' + formatMessageText(msg.content) + '</div>' +
         threadHtml +
       '</div>' +
       deleteHtml +
     '</div>';
   }
 
-  function escapeHtml(text) {
-    var div = document.createElement('div');
-    div.textContent = text;
-    return div.innerHTML;
-  }
+  // escapeHtml and formatMessageText are provided by message-format.js
 
   // ============ メッセージ送信 ============
   async function handleSend() {
@@ -437,6 +433,29 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   }
 
+  // ============ サイドバー DM メンバー ============
+  async function renderSidebarDMs() {
+    const dmListSection = document.getElementById('dmSidebarList');
+    if (!dmListSection) return;
+    const members = await fetchWorkspaceMembers(currentWorkspaceId);
+    const colors = ['#e8a0bf','#7eb8da','#a0c4a8','#c4a0e8','#e8c0a0','#a0b8e8'];
+    let html = '';
+    // Other members first
+    members.forEach(m => {
+      if (currentUser && m.user_id === currentUser.id) return;
+      const name = m.user_id.substring(0, 8);
+      const initial = name.charAt(0).toUpperCase();
+      const color = colors[name.charCodeAt(0) % colors.length];
+      html += '<button class="sidebar-item dm-item" onclick="location.href=\'dm.html\'"><span class="dm-avatar-small"><span class="dm-avatar-img" style="background:' + color + ';color:#fff;font-size:11px;">' + initial + '</span><span class="dm-status-dot online"></span></span><span>' + escapeHtml(name) + '</span></button>';
+    });
+    // Self
+    const selfName = currentUser?.email ? currentUser.email.split('@')[0] : 'ユーザー';
+    const selfInitial = selfName.charAt(0).toUpperCase();
+    const selfColor = colors[selfName.charCodeAt(0) % colors.length];
+    html += '<button class="sidebar-item dm-item" onclick="location.href=\'dm.html\'"><span class="dm-avatar-small"><span class="dm-avatar-img" style="background:' + selfColor + ';color:#fff;font-size:11px;">' + selfInitial + '</span><span class="dm-status-dot online"></span></span><span id="sidebarUserName">' + escapeHtml(selfName) + '</span><span class="dm-self-label">(自分)</span></button>';
+    dmListSection.innerHTML = html;
+  }
+
   // ============ 初期化 ============
   // 未参加チャンネルがあれば自動参加
   async function autoJoinChannels() {
@@ -461,6 +480,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   updateSendBtn();
   await loadChannels();
   await loadNotifications();
+  await renderSidebarDMs();
 
   // 初期化完了後に画面を表示
   document.body.style.visibility = 'visible';
