@@ -114,6 +114,15 @@
       cursor: pointer; font-family: var(--font);
     }
     .dm-welcome-edit-btn:hover { background: #2a2d32; }
+
+    /* Desktop: hide channel sidebar (dm-sidebar is used) */
+    @media (min-width: 769px) {
+      .channel-sidebar { display: none !important; }
+    }
+    /* Mobile: hide dm-sidebar (channel sidebar via hamburger) */
+    @media (max-width: 768px) {
+      .dm-sidebar { display: none !important; }
+    }
   </style>
 </head>
 <body style="visibility:hidden;">
@@ -270,6 +279,7 @@
     var app = document.querySelector('.app');
     var dmSidebar = app.querySelector('.dm-sidebar');
     dmSidebar.insertAdjacentHTML('beforebegin', getIconSidebar('dm'));
+    dmSidebar.insertAdjacentHTML('beforebegin', getChannelSidebar(''));
     dmSidebar.insertAdjacentHTML('beforebegin', getMobileSidebarOverlay());
     var mw = app.querySelector('.main-wrapper');
     if (mw) mw.insertAdjacentHTML('afterbegin', getMobileHeader('ダイレクトメッセージ'));

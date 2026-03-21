@@ -354,6 +354,56 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   }
 
+  // ============ Channel Sidebar (for mobile hamburger) ============
+  async function renderChannelSidebar() {
+    const sidebar = document.querySelector('.channel-sidebar');
+    if (!sidebar) return;
+
+    // Update workspace name
+    if (currentWorkspaceId) {
+      const ws = await getWorkspace(currentWorkspaceId);
+      if (ws) {
+        const wsName = sidebar.querySelector('.workspace-name');
+        if (wsName) wsName.innerHTML = escapeHtml(ws.name) + ' <span class="ws-dropdown">&#9662;</span>';
+      }
+    }
+
+    // Replace hardcoded channels with real ones
+    const channelItems = sidebar.querySelectorAll('.channel-item');
+    const channelSection = channelItems.length > 0 ? channelItems[0].parentElement : null;
+    if (channelSection) {
+      channelItems.forEach(el => el.remove());
+      const channels = await fetchChannels(currentWorkspaceId);
+      channels.forEach(ch => {
+        const btn = document.createElement('button');
+        btn.className = 'sidebar-item channel-item';
+        btn.onclick = () => { location.href = 'index.html'; };
+        btn.innerHTML = '<span class="channel-hash">#</span><span>' + escapeHtml(ch.name) + '</span>';
+        channelSection.appendChild(btn);
+      });
+    }
+
+    // Replace hardcoded DM section with real members
+    const dmItem = sidebar.querySelector('.dm-item');
+    const dmSection = dmItem ? dmItem.parentElement : null;
+    if (dmSection) {
+      dmSection.querySelectorAll('.dm-item').forEach(el => el.remove());
+      const colors = ['#e8a0bf','#7eb8da','#a0c4a8','#c4a0e8','#e8c0a0','#a0b8e8'];
+      const allMembers = workspaceMembers.concat(selfMember ? [selfMember] : []);
+      allMembers.forEach(m => {
+        const isSelf = currentUser && m.user_id === currentUser.id;
+        const name = m.email ? m.email.split('@')[0] : m.user_id.substring(0, 8);
+        const initial = name.charAt(0).toUpperCase();
+        const color = colors[name.charCodeAt(0) % colors.length];
+        const btn = document.createElement('button');
+        btn.className = 'sidebar-item dm-item';
+        btn.onclick = () => { selectDMPartner(m.user_id); if (typeof closeMobileSidebar === 'function') closeMobileSidebar(); };
+        btn.innerHTML = '<span class="dm-avatar-small"><span class="dm-avatar-img" style="background:' + color + ';color:#fff;font-size:11px;">' + initial + '</span><span class="dm-status-dot online"></span></span><span>' + escapeHtml(name) + '</span>' + (isSelf ? '<span class="dm-self-label">(自分)</span>' : '');
+        dmSection.appendChild(btn);
+      });
+    }
+  }
+
   // ============ Initialize ============
   updateUserUI();
   updateSendBtn();
@@ -366,5 +416,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     await selectDMPartner(currentUser.id);
   }
 
+  await renderChannelSidebar();
   document.body.style.visibility = 'visible';
 });
