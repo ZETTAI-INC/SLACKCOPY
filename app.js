@@ -245,10 +245,20 @@ document.addEventListener('DOMContentLoaded', async () => {
     messageInput.style.height = 'auto';
     updateSendBtn();
 
+    // 楽観的UI更新: サーバー応答を待たずに即表示
+    const optimisticMsg = {
+      id: 'temp-' + Date.now(),
+      channel_id: currentChannelId,
+      user_id: currentUser ? currentUser.id : null,
+      content: text,
+      created_at: new Date().toISOString(),
+      reply_count: 0,
+    };
+    appendMessage(optimisticMsg);
+
     const result = await sendMessage(currentChannelId, text);
-    console.log('sendMessage result:', result);
     if (!result) {
-      // リアルタイムで来なかった場合、手動でメッセージ再取得
+      // 送信失敗時はメッセージ再取得
       await loadMessages();
     }
   }
@@ -287,7 +297,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     realtimeSubscription = subscribeToMessages(currentChannelId, (newMsg) => {
       if (!newMsg.parent_id) {
-        // メインメッセージ → リストに追加
+        // 自分の楽観的メッセージがあれば差し替え、なければ追加
+        if (currentUser && newMsg.user_id === currentUser.id) {
+          var temps = messagesContainer.querySelectorAll('[data-id^="temp-"]');
+          if (temps.length > 0) { temps[0].remove(); }
+        }
         appendMessage(newMsg);
       }
     });
