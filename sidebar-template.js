@@ -51,13 +51,13 @@ function getMobileTabBar(activePage) {
     { href: 'dm.html', id: 'dm', label: 'DM', icon: '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 3h12a1 1 0 011 1v9a1 1 0 01-1 1H7l-4 3V4a1 1 0 011-1z"/></svg>' },
     { href: 'activity.html', id: 'activity', label: 'アクティビティ', icon: '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 7A4 4 0 006 7v4l-2 2h12l-2-2V7z"/><path d="M8.5 15a1.5 1.5 0 003 0"/></svg>' },
     { href: 'search.html', id: 'search', label: '検索', icon: '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8.5" cy="8.5" r="5.5"/><path d="M13 13l4.5 4.5"/></svg>' },
-    { href: '#', id: 'you', label: 'You', icon: '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="10" cy="7" r="4"/><path d="M3 18c0-3.5 3-6 7-6s7 2.5 7 6"/></svg>' },
+    { href: 'profile.html', id: 'you', label: 'あなた', icon: '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="10" cy="7" r="4"/><path d="M3 18c0-3.5 3-6 7-6s7 2.5 7 6"/></svg>' },
   ];
   var html = '<div class="mobile-tab-bar"><nav>';
   tabs.forEach(function(t) {
     var active = t.id === activePage ? ' active' : '';
     if (t.id === 'you') {
-      html += '<button class="mobile-tab-item'+active+'" onclick="if(confirm(\'ログアウトしますか？\')){signOut().then(function(){location.href=\'auth.html\';});}">'+t.icon+'<span>'+t.label+'</span></button>';
+      html += '<a href="'+t.href+'" class="mobile-tab-item'+active+'">'+t.icon+'<span>'+t.label+'</span></a>';
     } else {
       html += '<a href="'+t.href+'" class="mobile-tab-item'+active+'">'+t.icon+'<span>'+t.label+'</span></a>';
     }
