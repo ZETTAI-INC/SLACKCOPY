@@ -339,7 +339,11 @@ async function getOrCreateDMChannel(otherUserId, workspaceId) {
     .eq('workspace_id', workspaceId)
     .maybeSingle()
 
-  if (existing) return existing
+  if (existing) {
+    // Ensure current user is a member
+    await joinChannel(existing.id)
+    return existing
+  }
 
   const { data, error } = await sb
     .from('channels')
@@ -348,6 +352,10 @@ async function getOrCreateDMChannel(otherUserId, workspaceId) {
     .single()
 
   if (error) { console.error('getOrCreateDMChannel error:', error); return null }
+
+  // Join both users to the DM channel
+  await joinChannel(data.id)
+
   return data
 }
 
