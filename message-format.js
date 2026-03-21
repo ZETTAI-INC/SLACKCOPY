@@ -42,7 +42,10 @@ function formatMessageText(text) {
   // 4. Italic _text_ (with word boundary check)
   s = s.replace(/(^|[\s(])_([^_\n]+)_([\s).,!?;:]|$)/gm, '$1<em>$2</em>$3');
 
-  // 5. Strikethrough ~text~
+  // 5. Underline __text__
+  s = s.replace(/__([^_\n]+)__/g, '<u>$1</u>');
+
+  // 6. Strikethrough ~text~
   s = s.replace(/~([^~\n]+)~/g, '<s>$1</s>');
 
   // 6. Blockquote > text (at line start; > is escaped to &gt;)
@@ -93,6 +96,8 @@ function insertFormatting(textarea, type) {
       prefix = '*'; suffix = '*'; defaultText = 'テキスト'; break;
     case 'italic':
       prefix = '_'; suffix = '_'; defaultText = 'テキスト'; break;
+    case 'underline':
+      prefix = '__'; suffix = '__'; defaultText = 'テキスト'; break;
     case 'strikethrough':
       prefix = '~'; suffix = '~'; defaultText = 'テキスト'; break;
     case 'code':
