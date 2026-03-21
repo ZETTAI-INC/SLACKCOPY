@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   let currentDMChannelId = null;
   let currentDMPartner = null;
   let workspaceMembers = [];
+  let selfMember = null;
   let realtimeSubscription = null;
   const currentWorkspaceId = localStorage.getItem('currentWorkspaceId');
 
@@ -19,6 +20,12 @@ document.addEventListener('DOMContentLoaded', async () => {
   function getDisplayName(userId) {
     if (currentUser && userId === currentUser.id) {
       return currentUser.email ? currentUser.email.split('@')[0] : 'ユーザー';
+    }
+    // Look up email from workspace members
+    var allMembers = workspaceMembers.concat(selfMember ? [selfMember] : []);
+    var member = allMembers.find(m => m.user_id === userId);
+    if (member && member.email) {
+      return member.email.split('@')[0];
     }
     return userId.substring(0, 8);
   }
@@ -34,6 +41,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   // ============ DM Sidebar ============
   async function loadMembers() {
     const members = await fetchWorkspaceMembers(currentWorkspaceId);
+    selfMember = members.find(m => m.user_id === currentUser?.id) || null;
     workspaceMembers = members.filter(m => m.user_id !== currentUser?.id);
     renderDMSidebar();
   }
@@ -198,7 +206,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (msg.user_id && currentUser && msg.user_id === currentUser.id) {
       name = currentUser.email ? currentUser.email.split('@')[0] : 'あなた';
     } else if (msg.user_id) {
-      name = msg.user_id.substring(0, 8);
+      name = getDisplayName(msg.user_id);
     }
     const initial = getInitial(name);
     const color = getAvatarColor(name);

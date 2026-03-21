@@ -11,6 +11,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   let joinedChannelIds = [];
   let realtimeSubscription = null;
   let currentUser = null;
+  let memberMap = {}; // user_id -> email lookup
   const currentWorkspaceId = localStorage.getItem('currentWorkspaceId');
 
   // ローディング中はメッセージ領域を隠す
@@ -197,7 +198,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (msg.user_id && currentUser && msg.user_id === currentUser.id) {
       name = currentUser.email ? currentUser.email.split('@')[0] : 'あなた';
     } else if (msg.user_id) {
-      name = msg.user_id.substring(0, 6);
+      name = memberMap[msg.user_id] ? memberMap[msg.user_id].split('@')[0] : msg.user_id.substring(0, 6);
     }
     const initial = name.charAt(0).toUpperCase();
     const colors = ['#e8a0bf','#7eb8da','#a0c4a8','#c4a0e8','#e8c0a0','#a0b8e8'];
@@ -443,7 +444,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Other members first
     members.forEach(m => {
       if (currentUser && m.user_id === currentUser.id) return;
-      const name = m.user_id.substring(0, 8);
+      const name = m.email ? m.email.split('@')[0] : m.user_id.substring(0, 8);
       const initial = name.charAt(0).toUpperCase();
       const color = colors[name.charCodeAt(0) % colors.length];
       html += '<button class="sidebar-item dm-item" onclick="location.href=\'dm.html\'"><span class="dm-avatar-small"><span class="dm-avatar-img" style="background:' + color + ';color:#fff;font-size:11px;">' + initial + '</span><span class="dm-status-dot online"></span></span><span>' + escapeHtml(name) + '</span></button>';
@@ -475,6 +476,12 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (currentUser) {
     await autoJoinChannels();
   }
+
+  // メンバー情報をキャッシュ (メッセージ表示名に使用)
+  try {
+    const members = await fetchWorkspaceMembers(currentWorkspaceId);
+    members.forEach(m => { if (m.email) memberMap[m.user_id] = m.email; });
+  } catch (e) {}
 
   updateUserUI();
   updateSendBtn();

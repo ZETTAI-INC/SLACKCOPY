@@ -316,11 +316,16 @@ async function getCurrentUser() {
 // ============ DM (ダイレクトメッセージ) ============
 async function fetchWorkspaceMembers(workspaceId) {
   const sb = getSupabase()
-  const { data, error } = await sb
-    .from('workspace_members')
-    .select('user_id, role')
-    .eq('workspace_id', workspaceId)
-  if (error) { console.error('fetchWorkspaceMembers error:', error); return [] }
+  const { data, error } = await sb.rpc('get_workspace_members', { ws_id: workspaceId })
+  if (error) {
+    console.error('fetchWorkspaceMembers rpc error:', error)
+    // Fallback to direct query
+    const { data: fallback } = await sb
+      .from('workspace_members')
+      .select('user_id, role')
+      .eq('workspace_id', workspaceId)
+    return fallback || []
+  }
   return data || []
 }
 
