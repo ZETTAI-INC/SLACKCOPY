@@ -561,18 +561,20 @@ textarea::placeholder { color: #777; }
   display: none;
   position: fixed; bottom: 0; left: 0; right: 0;
   background: var(--sidebar-bg); border-top: 1px solid rgba(255,255,255,0.1);
-  z-index: 100; padding: 4px 0;
+  z-index: 9999; padding: 4px 0;
   padding-bottom: env(safe-area-inset-bottom, 0);
+  pointer-events: auto;
 }
 .mobile-tab-bar nav {
   display: flex; justify-content: space-around; align-items: center;
 }
 .mobile-tab-item {
   display: flex; flex-direction: column; align-items: center; gap: 2px;
-  padding: 6px 0; min-width: 56px;
+  padding: 8px 0; min-width: 56px;
   background: none; border: none; color: #8d8d8e;
   font-size: 10px; font-family: var(--font); cursor: pointer;
-  text-decoration: none;
+  text-decoration: none; pointer-events: auto;
+  -webkit-tap-highlight-color: rgba(255,255,255,0.1);
 }
 .mobile-tab-item.active { color: #fff; }
 .mobile-tab-item svg { width: 22px; height: 22px; }
