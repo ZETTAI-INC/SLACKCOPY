@@ -107,7 +107,7 @@ async function inviteToWorkspace(workspaceId, email, inviterName) {
 // ============ チャンネル ============
 async function fetchChannels(workspaceId) {
   const sb = getSupabase()
-  let query = sb.from('channels').select('*').order('created_at', { ascending: true })
+  let query = sb.from('channels').select('*').neq('description', '__DM__').order('created_at', { ascending: true })
   if (workspaceId) query = query.eq('workspace_id', workspaceId)
   const { data, error } = await query
   if (error) { console.error('fetchChannels error:', error); return [] }
